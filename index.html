@@ -272,16 +272,16 @@ channelSelect.addEventListener("change", () => {
 
   if (er < badMax) {
     angle = -90;
-    label = "Bad 🥴";
+    label = "Close but no 🥴";
   } else if (er < goodMax) {
     angle = -30;
     label = "Good 👍";
   } else if (er < betterMax) {
     angle = 30;
-    label = "Better 😎";
+    label = "Better🔥";
   } else {
     angle = 90;
-    label = "Above Goal 🐊🔥";
+    label = "Killin It 🐊";
   }
 
   needle.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
