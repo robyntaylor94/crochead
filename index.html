@@ -18,13 +18,15 @@
 
     .needle {
   position: absolute;
-  width: 220px;             /* adjust if needed */
+  width: 320px;                 /* tweak this to match your art */
   left: 50%;
-  top: 65%;                 /* anchor around the dial center area */
-  transform-origin: 12% 50%; /* pivot closer to the left */
-  transform: translate(-50%, -50%) rotate(-90deg);
+  top: 52%;                      /* tweak: this is the dial's center */
+  transform-origin: 12% 50%;     /* tweak: hinge point inside the needle image */
+  transform: translate(-12%, -50%) rotate(-90deg);
   transition: transform 0.8s ease;
+  pointer-events: none;
 }
+
 
 
     input {
@@ -125,7 +127,8 @@ input::placeholder {
         label = "Above Goal 🐊🔥";
       }
 
-     needle.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+    needle.style.transform = `translate(-12%, -50%) rotate(${angle}deg)`;
+
 
       result.textContent = `ER ${er}% — ${label}`;
     }
