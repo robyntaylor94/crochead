@@ -124,27 +124,29 @@ body::before {
   content: "";
   position: fixed;
   inset: 0;
+
   background-image:
-    repeating-radial-gradient(circle at 0 0,
-      rgba(255,255,255,0.03),
-      rgba(255,255,255,0.03) 1px,
-      rgba(0,0,0,0.03) 1px,
-      rgba(0,0,0,0.03) 2px
+    repeating-radial-gradient(
+      circle at 0 0,
+      rgba(255,255,255,0.08),
+      rgba(255,255,255,0.08) 1px,
+      rgba(0,0,0,0.08) 1px,
+      rgba(0,0,0,0.08) 2px
     );
-  opacity: 0.22;
+
+  opacity: 0.35;                 /* grain strength */
+  mix-blend-mode: overlay;       /* makes grain visible on black */
   pointer-events: none;
-  z-index: 1;
+  z-index: 0;
 
   animation: grain 8s steps(10) infinite;
 }
-  opacity: 0.25;        /* controls grain intensity */
-  pointer-events: none;
-  z-index: 1;
-}
+
 body > * {
   position: relative;
-  z-index: 2;
+  z-index: 1;
 }
+
 @keyframes grain {
   0%, 100% { transform: translate(0, 0); }
   10% { transform: translate(-1%, -1%); }
