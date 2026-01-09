@@ -240,15 +240,20 @@
 
   <div class="input-area">
     <select id="channelSelect">
-      <option value="" selected disabled>Select a channel</option>
-      <option value="instagram">Instagram</option>
-      <option value="tiktok">TikTok</option>
-      <option value="facebook">Facebook</option>
-      <option value="x">X (Twitter)</option>
-      <option value="linkedin">LinkedIn</option>
-    </select>
+  <option value="" selected disabled>Select a channel</option>
+  <option value="instagram">Instagram</option>
+  <option value="tiktok">TikTok</option>
+  <option value="facebook">Facebook</option>
+  <option value="x">X (Twitter)</option>
+  <option value="youtube">YouTube</option>
+</select>
 
-    <input id="erInput" type="number" step="0.1" placeholder="e.g. 6.5" disabled />
+
+    <input id="viewsInput" type="number" step="1" placeholder="Views" disabled />
+<input id="engInput" type="number" step="1" placeholder="Engagements" disabled />
+<input id="sharesInput" type="number" step="1" placeholder="Shares (optional)" disabled />
+<input id="erInput" type="number" step="0.1" placeholder="ER% (optional)" disabled />
+
     <button id="checkBtn" type="button" disabled>Gauge It</button>
   </div>
 
@@ -275,14 +280,40 @@
   </audio>
 
   <script>
+    const viewsInput = document.getElementById("viewsInput");
+const engInput = document.getElementById("engInput");
+const sharesInput = document.getElementById("sharesInput");
+const erInput = document.getElementById("erInput");
+
     const channelSelect = document.getElementById("channelSelect");
-    const erInput = document.getElementById("erInput");
     const checkBtn = document.getElementById("checkBtn");
     const result = document.getElementById("result");
     const needle = document.getElementById("needle");
 
     const vibesBtn = document.getElementById("vibesBtn");
     const vibesAudio = document.getElementById("vibesAudio");
+
+    function hasAtLeastOneMetric() {
+  const views = document.getElementById("viewsInput")?.value;
+  const eng   = document.getElementById("engInput")?.value;
+  const er    = document.getElementById("erInput")?.value;
+
+  function tierVsAvg(value, avg, low = 0.8, high = 1.2) {
+  if (!Number.isFinite(value) || !Number.isFinite(avg) || avg <= 0) return null;
+  const ratio = value / avg;
+  if (ratio < low) return "below";
+  if (ratio > high) return "above";
+  return "onpar";
+}
+
+
+  return (
+    (views && Number(views) > 0) ||
+    (eng && Number(eng) > 0) ||
+    (er && Number(er) > 0)
+  );
+}
+
 
     // --- VIBES logic ---
     let vibesTimer = null;
@@ -322,30 +353,62 @@
       if (isVibing) stopVibes();
       else startVibes();
     });
+    // Views and Engagement Benchmarks
+const BENCHMARKS = {
+  instagram: { viewsAvg: 5000, engAvg: 800, erGoal: 16.0 },
+  x:         { viewsAvg: 2000, engAvg: 300, erGoal: 15.0 },
+  tiktok:    { viewsAvg: 7000, engAvg: 900, erGoal: 12.86 },
+  youtube:   { viewsAvg: 7500, engAvg: 250, erGoal: 3.33 },
+  facebook:  { viewsAvg: 5500, engAvg: 600, erGoal: 10.91 }
+};
 
     // --- ER thresholds ---
+    /*
     const thresholds = {
-      instagram: [2, 4, 6],
-      tiktok: [4, 7, 10],
-      facebook: [1, 2.5, 4],
-      x: [0.5, 1.5, 3],
-      linkedin: [1, 2, 3.5]
-    };
+  instagram: [2, 4, BENCHMARKS.instagram.erGoal],
+  tiktok: [4, 7, 10],
+  facebook: [1, 2.5, 4],
+  x: [0.5, 1.5, 3],
+  youtube: [1, 2.5, 4] // placeholder for now — you said YouTube ER calc is “later”
+};
+*/
+
+    const thresholds = {
+  instagram: [2, 4, 6],
+  tiktok: [4, 7, 10],
+  facebook: [1, 2.5, 4],
+  x: [0.5, 1.5, 3],
+  youtube: [1, 2.5, 4] // placeholder for now — you said YouTube ER calc is “later”
+};
+
+
 
     // Enable inputs only after channel selection
     erInput.disabled = true;
     checkBtn.disabled = true;
 
     channelSelect.addEventListener("change", () => {
-      const hasChannel = channelSelect.value !== "";
-      erInput.disabled = !hasChannel;
-      checkBtn.disabled = !hasChannel;
+  const hasChannel = channelSelect.value !== "";
 
-      result.textContent = "";
-      result.classList.remove("show");
+  // enable all inputs when channel is selected
+  viewsInput.disabled = !hasChannel;
+  engInput.disabled = !hasChannel;
+  sharesInput.disabled = !hasChannel;
+  erInput.disabled = !hasChannel;
 
-      if (hasChannel) erInput.focus();
-    });
+  // reset
+  viewsInput.value = "";
+  engInput.value = "";
+  sharesInput.value = "";
+  erInput.value = "";
+  checkBtn.disabled = true;
+
+  result.textContent = "";
+  result.classList.remove("show");
+
+  if (hasChannel) viewsInput.focus();
+});
+
 
     erInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter" && !checkBtn.disabled) updateMeter();
@@ -405,19 +468,175 @@
     }
 
     // --- Main meter update ---
-    function updateMeter() {
-      const channel = channelSelect.value;
-      const er = parseFloat(erInput.value);
+   function updateMeter() {
+  const channel = channelSelect.value;
+  if (!channel) {
+    alert("Please select a channel first");
+    return;
+  }
 
-      if (!channel) {
-        alert("Please select a channel first");
-        return;
-      }
+  const bm = BENCHMARKS[channel];
+  if (!bm) {
+    alert("No benchmarks found for this channel.");
+    return;
+  }
 
-      if (Number.isNaN(er)) {
-        alert("Please enter an ER number");
-        return;
+  const views = viewsInput.value ? parseFloat(viewsInput.value) : null;
+  const eng = engInput.value ? parseFloat(engInput.value) : null;
+  const shares = sharesInput.value ? parseFloat(sharesInput.value) : null;
+
+  // ER can be user-provided OR calculated
+  const erProvided = erInput.value ? parseFloat(erInput.value) : null;
+
+  let er = null;
+  let erSource = "none";
+
+  if (Number.isFinite(erProvided)) {
+    er = erProvided;
+    erSource = "provided";
+  } else if (Number.isFinite(views) && views > 0 && Number.isFinite(eng)) {
+    er = (eng / views) * 100;
+    erSource = "calculated";
+  }
+
+  // Decide what we can evaluate
+  const hasViews = Number.isFinite(views) && views >= 0;
+  const hasEng = Number.isFinite(eng) && eng >= 0;
+  const hasER = Number.isFinite(er);
+
+  const viewsTier = hasViews ? tierVsAvg(views, bm.viewsAvg) : null; // below | onpar | above
+const engTier   = hasEng ? tierVsAvg(eng, bm.engAvg) : null;
+  const erVs = hasER ? (er >= bm.erGoal ? "above" : "below") : null; // goal check
+
+
+  // Reset effects
+  stopJibbitRain();
+  result.classList.remove("show");
+
+  // Needle behavior:
+  // - Only move needle if we have ER (provided or calculated)
+  // - Otherwise keep it parked at -90
+  let angle = -90;
+
+  if (hasER) {
+    const [badMax, goodMax, betterMax] = thresholds[channel];
+    if (er < badMax) angle = -90;
+    else if (er < goodMax) angle = -30;
+    else if (er < betterMax) angle = 30;
+    else angle = 90;
+
+    needle.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+  } else {
+    needle.style.transform = `translate(-50%, -50%) rotate(-90deg)`;
+  }
+
+  // Build insight (your rule set)
+  let label = "";
+  let microCopy = "";
+  let detailLine = "";
+
+  // Case A: Views + Engagements present (best insight power)
+  if (hasViews && hasEng) {
+    // rule 1: views above benchmark but engagements below benchmark
+    if (viewsTier === "above" && engTier === "below") {
+  label = "Hook landed. Bite didn’t.";
+  microCopy = "Views popped but engagement lagged. What got the click and what didn’t earn the action?";
+}
+
+    // opposite: views below but engagements above
+    else if (viewsVs === "below" && engVs === "above") {
+      label = "Small crowd, big feelings.";
+      microCopy = "Engagement is strong for the reach you got — worth testing new distribution or opening frames.";
+    }
+    // both above
+    else if (viewsTier === "above" && engTier === "above") {
+  label = "Certified snapper.";
+  microCopy = "Above-average views *and* engagement. Bottle the strategy.";
+}
+
+    // both below
+    else {
+  label = "Quiet waters.";
+  microCopy = "Below average views + engagement. Worth revisiting hook, format, or who this is for.";
+}
+
+
+    // Optional: show calculated ER info if relevant
+    if (hasER) {
+      detailLine =
+        erSource === "calculated"
+          ? `Calculated ER: ${er.toFixed(2)}% (goal: ${bm.erGoal}%)`
+          : `ER: ${er.toFixed(2)}% (goal: ${bm.erGoal}%)`;
+    }
+  }
+
+  // Case B: Only Engagements
+  else if (hasEng && !hasViews && !hasER) {
+    label = engVs === "above" ? "People showed up." : "A lil under.";
+    microCopy =
+      engVs === "above"
+        ? "Engagement is above benchmark — something’s resonating. What’s the repeatable ingredient?"
+        : "Engagement is under benchmark — what might be missing: clarity, payoff, or reason to comment/save?";
+    detailLine = `Engagement benchmark: ${bm.engAvg}`;
+  }
+
+  // Case C: Only Views
+  else if (hasViews && !hasEng && !hasER) {
+    label = viewsVs === "above" ? "Hook did its job." : "Not grabbing yet.";
+    microCopy =
+      viewsVs === "above"
+        ? "Views are above benchmark — your hook/packaging is working. Next: add a stronger “why engage” moment."
+        : "Views are under benchmark — hook, thumbnail, first 1–2 seconds, or targeting might need a tweak.";
+    detailLine = `Views benchmark: ${bm.viewsAvg}`;
+  }
+
+  // Case D: ER provided (or ER calculable without both? usually needs both)
+  else if (hasER) {
+    label = erVs === "above" ? "Above goal 🐊" : "Under goal 🥴";
+    microCopy =
+      erVs === "above"
+        ? "ER is above goal — this is performing with intent. What about it is *share/save worthy*?"
+        : "ER is under goal — something didn’t convert attention into action. Where’s the drop-off happening?";
+    detailLine = `Goal ER: ${bm.erGoal}%`;
+  }
+
+  else {
+    alert("Enter at least one metric (Views, Engagements, Shares, or ER%).");
+    return;
+  }
+
+  // Shares add-on (optional, heuristic)
+  if (Number.isFinite(shares) && shares > 0) {
+    if (Number.isFinite(eng) && eng > 0) {
+      const shareShare = shares / eng; // shares as fraction of engagements
+      if (shareShare >= 0.25) {
+        microCopy += " Shares are doing work here — feels like *resonance* or “send-to-a-friend” energy.";
       }
+    } else if (Number.isFinite(views) && views > 0) {
+      const shareRate = shares / views;
+      if (shareRate >= 0.01) {
+        microCopy += " Shares look strong vs views — people might be passing this around for a reason.";
+      }
+    }
+  }
+
+  // If Above Goal ER → jibbit rain
+  if (hasER && erVs === "above") startJibbitRain(2600);
+
+  // Human channel label
+  const channelLabel = channelSelect.options[channelSelect.selectedIndex].text;
+
+  // Delayed reveal
+  setTimeout(() => {
+    result.innerHTML = `
+      <div>${channelLabel} — ${label}</div>
+      <div class="microcopy">${microCopy}</div>
+      ${detailLine ? `<div class="microcopy" style="opacity:0.55">${detailLine}</div>` : ""}
+    `;
+    result.classList.add("show");
+  }, 500);
+}
+
 
       stopJibbitRain();
 
