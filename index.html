@@ -44,11 +44,8 @@
       font-size: 18px;
       font-weight: bold;
     }
-    .full-bleed {
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
-}
+    
+
 input, button {
   background: #111;
   color: #fff;
@@ -62,16 +59,21 @@ input::placeholder {
 
 .meter-container {
   position: relative;
-  width: min(1100px, 100%);
+  width: 100%;
   margin: 0 auto;
+  display: flex;
+  justify-content: center;
 }
 
 .meter-bg {
-  width: 100%;
-  max-height: 70vh;
-  height: auto;
+  width: auto;          /* don't force it wider than its natural size */
+  height: auto;         /* keep aspect ratio */
+  max-width: 100%;      /* still responsive on small screens */
+  max-height: 70vh;     /* keep it from taking over vertically */
   display: block;
+  image-rendering: auto;
 }
+
 
 
   </style>
@@ -83,12 +85,10 @@ input::placeholder {
   <input id="erInput" type="number" step="0.1" placeholder="e.g. 3.5" />
   <button onclick="updateMeter()">Check</button>
 
-  <div class="full-bleed">
   <div class="meter-container">
     <img src="meter-bg.png" class="meter-bg" />
     <img src="needle-croc.png" class="needle" id="needle" />
   </div>
-</div>
 
 
   <div id="result"></div>
