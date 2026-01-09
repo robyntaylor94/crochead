@@ -530,18 +530,37 @@
     stopJibbitRain();
     result.classList.remove("show");
 
-    // Needle moves only if we have ER
-    if (hasER) {
-      const [badMax, goodMax, betterMax] = thresholds[channel];
-      let angle = -90;
-      if (er < badMax) angle = -90;
-      else if (er < goodMax) angle = -30;
-      else if (er < betterMax) angle = 30;
-      else angle = 90;
-      needle.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
-    } else {
-      needle.style.transform = `translate(-50%, -50%) rotate(-90deg)`;
-    }
+    // Needle logic:
+// 1) If ER exists → use ER thresholds (current behavior)
+// 2) If ER does NOT exist → use tiers from views/eng to still move the needle
+let angle = -90;
+
+if (hasER) {
+  const [badMax, goodMax, betterMax] = thresholds[channel];
+
+  if (er < badMax) angle = -90;
+  else if (er < goodMax) angle = -30;
+  else if (er < betterMax) angle = 30;
+  else angle = 90;
+
+} else if (hasViews && viewsTier) {
+  // Views-only needle mapping
+  if (viewsTier === "below") angle = -60;
+  else if (viewsTier === "onpar") angle = 0;
+  else angle = 60;
+
+} else if (hasEng && engTier) {
+  // Engagements-only needle mapping
+  if (engTier === "below") angle = -60;
+  else if (engTier === "onpar") angle = 0;
+  else angle = 60;
+
+} else {
+  angle = -90; // default parked
+}
+
+needle.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+
 
     // Build insight text
     let label = "";
