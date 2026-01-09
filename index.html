@@ -280,404 +280,368 @@
   </audio>
 
   <script>
-    const viewsInput = document.getElementById("viewsInput");
-const engInput = document.getElementById("engInput");
-const sharesInput = document.getElementById("sharesInput");
-const erInput = document.getElementById("erInput");
+  // ----------------------------
+  // Grab elements
+  // ----------------------------
+  const channelSelect = document.getElementById("channelSelect");
+  const viewsInput = document.getElementById("viewsInput");
+  const engInput = document.getElementById("engInput");
+  const sharesInput = document.getElementById("sharesInput");
+  const erInput = document.getElementById("erInput");
 
-    const channelSelect = document.getElementById("channelSelect");
-    const checkBtn = document.getElementById("checkBtn");
-    const result = document.getElementById("result");
-    const needle = document.getElementById("needle");
+  const checkBtn = document.getElementById("checkBtn");
+  const result = document.getElementById("result");
+  const needle = document.getElementById("needle");
 
-    const vibesBtn = document.getElementById("vibesBtn");
-    const vibesAudio = document.getElementById("vibesAudio");
+  const vibesBtn = document.getElementById("vibesBtn");
+  const vibesAudio = document.getElementById("vibesAudio");
 
-    function hasAtLeastOneMetric() {
-  const views = document.getElementById("viewsInput")?.value;
-  const eng   = document.getElementById("engInput")?.value;
-  const er    = document.getElementById("erInput")?.value;
+  // ----------------------------
+  // Benchmarks + ER goals (replace with your real sheet numbers)
+  // viewsAvg + engAvg are averages (tiered comparisons)
+  // erGoal is a goal threshold
+  // ----------------------------
+  const BENCHMARKS = {
+    instagram: { viewsAvg: 5000, engAvg: 800, erGoal: 6.0 },
+    tiktok:    { viewsAvg: 7000, engAvg: 900, erGoal: 10.0 },
+    facebook:  { viewsAvg: 5500, engAvg: 600, erGoal: 4.0 },
+    x:         { viewsAvg: 2000, engAvg: 300, erGoal: 3.0 },
+    youtube:   { viewsAvg: 7500, engAvg: 250, erGoal: 4.0 } // placeholder for now
+  };
 
+  // Needle mapping (still used for dial positions)
+  const thresholds = {
+    instagram: [2, 4, 6],
+    tiktok:    [4, 7, 10],
+    facebook:  [1, 2.5, 4],
+    x:         [0.5, 1.5, 3],
+    youtube:   [1, 2.5, 4]
+  };
+
+  // ----------------------------
+  // Helpers
+  // ----------------------------
   function tierVsAvg(value, avg, low = 0.8, high = 1.2) {
-  if (!Number.isFinite(value) || !Number.isFinite(avg) || avg <= 0) return null;
-  const ratio = value / avg;
-  if (ratio < low) return "below";
-  if (ratio > high) return "above";
-  return "onpar";
-}
+    if (!Number.isFinite(value) || !Number.isFinite(avg) || avg <= 0) return null;
+    const ratio = value / avg;
+    if (ratio < low) return "below";
+    if (ratio > high) return "above";
+    return "onpar";
+  }
 
+  function hasAtLeastOneMetric() {
+    const views = Number(viewsInput.value);
+    const eng = Number(engInput.value);
+    const shares = Number(sharesInput.value);
+    const er = Number(erInput.value);
 
-  return (
-    (views && Number(views) > 0) ||
-    (eng && Number(eng) > 0) ||
-    (er && Number(er) > 0)
-  );
-}
+    return (
+      (Number.isFinite(views) && views > 0) ||
+      (Number.isFinite(eng) && eng > 0) ||
+      (Number.isFinite(shares) && shares > 0) ||
+      (Number.isFinite(er) && er > 0)
+    );
+  }
 
+  function updateGaugeButtonState() {
+    const hasChannel = channelSelect.value !== "";
+    checkBtn.disabled = !(hasChannel && hasAtLeastOneMetric());
+  }
 
-    // --- VIBES logic ---
-    let vibesTimer = null;
-    let isVibing = false;
+  // ----------------------------
+  // VIBES logic
+  // ----------------------------
+  let vibesTimer = null;
+  let isVibing = false;
 
-    function stopVibes() {
-      if (vibesTimer) {
-        clearTimeout(vibesTimer);
-        vibesTimer = null;
-      }
-      vibesAudio.pause();
-      vibesAudio.currentTime = 0;
+  function stopVibes() {
+    if (vibesTimer) {
+      clearTimeout(vibesTimer);
+      vibesTimer = null;
+    }
+    vibesAudio.pause();
+    vibesAudio.currentTime = 0;
+    isVibing = false;
+    vibesBtn.classList.remove("playing");
+  }
+
+  function startVibes() {
+    vibesAudio.currentTime = 0;
+
+    vibesAudio.play().then(() => {
+      isVibing = true;
+      vibesBtn.classList.add("playing");
+
+      vibesTimer = setTimeout(() => stopVibes(), 20000);
+    }).catch(() => {
       isVibing = false;
       vibesBtn.classList.remove("playing");
-    }
-
-    function startVibes() {
-      vibesAudio.currentTime = 0;
-
-      vibesAudio.play().then(() => {
-        isVibing = true;
-        vibesBtn.classList.add("playing");
-
-        vibesTimer = setTimeout(() => {
-          stopVibes();
-        }, 20000);
-      }).catch(() => {
-        // Autoplay restrictions happen sometimes; this keeps UI stable
-        isVibing = false;
-        vibesBtn.classList.remove("playing");
-        alert("Tap VIBES again to allow audio playback.");
-      });
-    }
-
-    // ✅ THIS WAS MISSING IN YOUR VERSION:
-    vibesBtn.addEventListener("click", () => {
-      if (isVibing) stopVibes();
-      else startVibes();
+      alert("Tap VIBES again to allow audio playback.");
     });
-    // Views and Engagement Benchmarks
-const BENCHMARKS = {
-  instagram: { viewsAvg: 5000, engAvg: 800, erGoal: 16.0 },
-  x:         { viewsAvg: 2000, engAvg: 300, erGoal: 15.0 },
-  tiktok:    { viewsAvg: 7000, engAvg: 900, erGoal: 12.86 },
-  youtube:   { viewsAvg: 7500, engAvg: 250, erGoal: 3.33 },
-  facebook:  { viewsAvg: 5500, engAvg: 600, erGoal: 10.91 }
-};
+  }
 
-    // --- ER thresholds ---
-    /*
-    const thresholds = {
-  instagram: [2, 4, BENCHMARKS.instagram.erGoal],
-  tiktok: [4, 7, 10],
-  facebook: [1, 2.5, 4],
-  x: [0.5, 1.5, 3],
-  youtube: [1, 2.5, 4] // placeholder for now — you said YouTube ER calc is “later”
-};
-*/
+  vibesBtn.addEventListener("click", () => {
+    if (isVibing) stopVibes();
+    else startVibes();
+  });
 
-    const thresholds = {
-  instagram: [2, 4, 6],
-  tiktok: [4, 7, 10],
-  facebook: [1, 2.5, 4],
-  x: [0.5, 1.5, 3],
-  youtube: [1, 2.5, 4] // placeholder for now — you said YouTube ER calc is “later”
-};
+  // ----------------------------
+  // Jibbit rain
+  // ----------------------------
+  let jibbitInterval = null;
 
+  function startJibbitRain(durationMs = 2200) {
+    const rain = document.getElementById("jibbitRain");
+    if (!rain) return;
 
+    stopJibbitRain();
+    const start = Date.now();
 
-    // Enable inputs only after channel selection
-    erInput.disabled = true;
-    checkBtn.disabled = true;
+    jibbitInterval = setInterval(() => {
+      if (Date.now() - start > durationMs) {
+        stopJibbitRain();
+        return;
+      }
 
-    channelSelect.addEventListener("change", () => {
-  const hasChannel = channelSelect.value !== "";
+      const count = Math.floor(Math.random() * 3) + 2; // 2–4
+      for (let i = 0; i < count; i++) {
+        const img = document.createElement("img");
+        img.src = "jibbit.png";
+        img.className = "jibbit";
 
-  // enable all inputs when channel is selected
-  viewsInput.disabled = !hasChannel;
-  engInput.disabled = !hasChannel;
-  sharesInput.disabled = !hasChannel;
-  erInput.disabled = !hasChannel;
+        const size = Math.floor(Math.random() * 100) + 70; // 70–170px
+        img.style.width = `${size}px`;
+        img.style.height = "auto";
 
-  // reset
-  viewsInput.value = "";
-  engInput.value = "";
-  sharesInput.value = "";
-  erInput.value = "";
+        img.style.left = `${Math.random() * 100}vw`;
+
+        const drift = (Math.random() * 120 - 60).toFixed(0);
+        const spin = (Math.random() * 360 - 180).toFixed(0);
+        img.style.setProperty("--drift", `${drift}px`);
+        img.style.setProperty("--spin", `${spin}deg`);
+
+        const fallDuration = (Math.random() * 1.2 + 1.6).toFixed(2);
+        img.style.animationDuration = `${fallDuration}s`;
+
+        img.addEventListener("animationend", () => img.remove());
+        rain.appendChild(img);
+      }
+    }, 180);
+  }
+
+  function stopJibbitRain() {
+    if (jibbitInterval) {
+      clearInterval(jibbitInterval);
+      jibbitInterval = null;
+    }
+    const rain = document.getElementById("jibbitRain");
+    if (rain) rain.innerHTML = "";
+  }
+
+  // ----------------------------
+  // Enable/disable inputs + button
+  // ----------------------------
+  function setInputsEnabled(enabled) {
+    viewsInput.disabled = !enabled;
+    engInput.disabled = !enabled;
+    sharesInput.disabled = !enabled;
+    erInput.disabled = !enabled;
+  }
+
+  // Start disabled
+  setInputsEnabled(false);
   checkBtn.disabled = true;
 
-  result.textContent = "";
-  result.classList.remove("show");
+  channelSelect.addEventListener("change", () => {
+    const hasChannel = channelSelect.value !== "";
+    setInputsEnabled(hasChannel);
 
-  if (hasChannel) viewsInput.focus();
-});
+    // reset fields when switching channel
+    viewsInput.value = "";
+    engInput.value = "";
+    sharesInput.value = "";
+    erInput.value = "";
 
+    stopJibbitRain();
+    result.textContent = "";
+    result.classList.remove("show");
 
-    erInput.addEventListener("keydown", (e) => {
+    updateGaugeButtonState();
+    if (hasChannel) viewsInput.focus();
+  });
+
+  // Re-check button state whenever user types
+  [viewsInput, engInput, sharesInput, erInput].forEach((el) => {
+    el.addEventListener("input", updateGaugeButtonState);
+    el.addEventListener("keydown", (e) => {
       if (e.key === "Enter" && !checkBtn.disabled) updateMeter();
     });
+  });
 
-    checkBtn.addEventListener("click", updateMeter);
+  checkBtn.addEventListener("click", updateMeter);
 
-    // --- Jibbit rain ---
-    let jibbitInterval = null;
-
-    function startJibbitRain(durationMs = 2200) {
-      const rain = document.getElementById("jibbitRain");
-      if (!rain) return;
-
-      stopJibbitRain();
-      const start = Date.now();
-
-      jibbitInterval = setInterval(() => {
-        if (Date.now() - start > durationMs) {
-          stopJibbitRain();
-          return;
-        }
-
-        const count = Math.floor(Math.random() * 3) + 2; // 2–4
-        for (let i = 0; i < count; i++) {
-          const img = document.createElement("img");
-          img.src = "jibbit.png";
-          img.className = "jibbit";
-
-          const size = Math.floor(Math.random() * 100) + 70; // 70–170px
-          img.style.width = `${size}px`;
-          img.style.height = "auto";
-
-          img.style.left = `${Math.random() * 100}vw`;
-
-          const drift = (Math.random() * 120 - 60).toFixed(0);
-          const spin = (Math.random() * 360 - 180).toFixed(0);
-          img.style.setProperty("--drift", `${drift}px`);
-          img.style.setProperty("--spin", `${spin}deg`);
-
-          const fallDuration = (Math.random() * 1.2 + 1.6).toFixed(2);
-          img.style.animationDuration = `${fallDuration}s`;
-
-          img.addEventListener("animationend", () => img.remove());
-          rain.appendChild(img);
-        }
-      }, 180);
+  // ----------------------------
+  // Main meter update
+  // ----------------------------
+  function updateMeter() {
+    const channel = channelSelect.value;
+    if (!channel) {
+      alert("Please select a channel first");
+      return;
     }
 
-    function stopJibbitRain() {
-      if (jibbitInterval) {
-        clearInterval(jibbitInterval);
-        jibbitInterval = null;
-      }
-      const rain = document.getElementById("jibbitRain");
-      if (rain) rain.innerHTML = "";
+    const bm = BENCHMARKS[channel];
+    if (!bm) {
+      alert("No benchmarks found for this channel.");
+      return;
     }
 
-    // --- Main meter update ---
-   function updateMeter() {
-  const channel = channelSelect.value;
-  if (!channel) {
-    alert("Please select a channel first");
-    return;
-  }
+    const views = viewsInput.value ? Number(viewsInput.value) : null;
+    const eng = engInput.value ? Number(engInput.value) : null;
+    const shares = sharesInput.value ? Number(sharesInput.value) : null;
+    const erProvided = erInput.value ? Number(erInput.value) : null;
 
-  const bm = BENCHMARKS[channel];
-  if (!bm) {
-    alert("No benchmarks found for this channel.");
-    return;
-  }
+    const hasViews = Number.isFinite(views) && views > 0;
+    const hasEng = Number.isFinite(eng) && eng > 0;
+    const hasShares = Number.isFinite(shares) && shares > 0;
 
-  const views = viewsInput.value ? parseFloat(viewsInput.value) : null;
-  const eng = engInput.value ? parseFloat(engInput.value) : null;
-  const shares = sharesInput.value ? parseFloat(sharesInput.value) : null;
+    // ER can be user-provided OR calculated from views+eng
+    let er = null;
+    let erSource = "none";
 
-  // ER can be user-provided OR calculated
-  const erProvided = erInput.value ? parseFloat(erInput.value) : null;
-
-  let er = null;
-  let erSource = "none";
-
-  if (Number.isFinite(erProvided)) {
-    er = erProvided;
-    erSource = "provided";
-  } else if (Number.isFinite(views) && views > 0 && Number.isFinite(eng)) {
-    er = (eng / views) * 100;
-    erSource = "calculated";
-  }
-
-  // Decide what we can evaluate
-  const hasViews = Number.isFinite(views) && views >= 0;
-  const hasEng = Number.isFinite(eng) && eng >= 0;
-  const hasER = Number.isFinite(er);
-
-  const viewsTier = hasViews ? tierVsAvg(views, bm.viewsAvg) : null; // below | onpar | above
-const engTier   = hasEng ? tierVsAvg(eng, bm.engAvg) : null;
-  const erVs = hasER ? (er >= bm.erGoal ? "above" : "below") : null; // goal check
-
-
-  // Reset effects
-  stopJibbitRain();
-  result.classList.remove("show");
-
-  // Needle behavior:
-  // - Only move needle if we have ER (provided or calculated)
-  // - Otherwise keep it parked at -90
-  let angle = -90;
-
-  if (hasER) {
-    const [badMax, goodMax, betterMax] = thresholds[channel];
-    if (er < badMax) angle = -90;
-    else if (er < goodMax) angle = -30;
-    else if (er < betterMax) angle = 30;
-    else angle = 90;
-
-    needle.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
-  } else {
-    needle.style.transform = `translate(-50%, -50%) rotate(-90deg)`;
-  }
-
-  // Build insight (your rule set)
-  let label = "";
-  let microCopy = "";
-  let detailLine = "";
-
-  // Case A: Views + Engagements present (best insight power)
-  if (hasViews && hasEng) {
-    // rule 1: views above benchmark but engagements below benchmark
-    if (viewsTier === "above" && engTier === "below") {
-  label = "Hook landed. Bite didn’t.";
-  microCopy = "Views popped but engagement lagged. What got the click and what didn’t earn the action?";
-}
-
-    // opposite: views below but engagements above
-    else if (viewsVs === "below" && engVs === "above") {
-      label = "Small crowd, big feelings.";
-      microCopy = "Engagement is strong for the reach you got — worth testing new distribution or opening frames.";
+    if (Number.isFinite(erProvided) && erProvided > 0) {
+      er = erProvided;
+      erSource = "provided";
+    } else if (hasViews && hasEng) {
+      er = (eng / views) * 100;
+      erSource = "calculated";
     }
-    // both above
-    else if (viewsTier === "above" && engTier === "above") {
-  label = "Certified snapper.";
-  microCopy = "Above-average views *and* engagement. Bottle the strategy.";
-}
 
-    // both below
-    else {
-  label = "Quiet waters.";
-  microCopy = "Below average views + engagement. Worth revisiting hook, format, or who this is for.";
-}
+    const hasER = Number.isFinite(er);
 
+    // Tiering
+    const viewsTier = hasViews ? tierVsAvg(views, bm.viewsAvg) : null;
+    const engTier   = hasEng ? tierVsAvg(eng, bm.engAvg) : null;
 
-    // Optional: show calculated ER info if relevant
+    // ER goal check
+    const erVsGoal = hasER ? (er >= bm.erGoal ? "above" : "below") : null;
+
+    // Reset effects
+    stopJibbitRain();
+    result.classList.remove("show");
+
+    // Needle moves only if we have ER
     if (hasER) {
-      detailLine =
-        erSource === "calculated"
-          ? `Calculated ER: ${er.toFixed(2)}% (goal: ${bm.erGoal}%)`
-          : `ER: ${er.toFixed(2)}% (goal: ${bm.erGoal}%)`;
-    }
-  }
-
-  // Case B: Only Engagements
-  else if (hasEng && !hasViews && !hasER) {
-    label = engVs === "above" ? "People showed up." : "A lil under.";
-    microCopy =
-      engVs === "above"
-        ? "Engagement is above benchmark — something’s resonating. What’s the repeatable ingredient?"
-        : "Engagement is under benchmark — what might be missing: clarity, payoff, or reason to comment/save?";
-    detailLine = `Engagement benchmark: ${bm.engAvg}`;
-  }
-
-  // Case C: Only Views
-  else if (hasViews && !hasEng && !hasER) {
-    label = viewsVs === "above" ? "Hook did its job." : "Not grabbing yet.";
-    microCopy =
-      viewsVs === "above"
-        ? "Views are above benchmark — your hook/packaging is working. Next: add a stronger “why engage” moment."
-        : "Views are under benchmark — hook, thumbnail, first 1–2 seconds, or targeting might need a tweak.";
-    detailLine = `Views benchmark: ${bm.viewsAvg}`;
-  }
-
-  // Case D: ER provided (or ER calculable without both? usually needs both)
-  else if (hasER) {
-    label = erVs === "above" ? "Above goal 🐊" : "Under goal 🥴";
-    microCopy =
-      erVs === "above"
-        ? "ER is above goal — this is performing with intent. What about it is *share/save worthy*?"
-        : "ER is under goal — something didn’t convert attention into action. Where’s the drop-off happening?";
-    detailLine = `Goal ER: ${bm.erGoal}%`;
-  }
-
-  else {
-    alert("Enter at least one metric (Views, Engagements, Shares, or ER%).");
-    return;
-  }
-
-  // Shares add-on (optional, heuristic)
-  if (Number.isFinite(shares) && shares > 0) {
-    if (Number.isFinite(eng) && eng > 0) {
-      const shareShare = shares / eng; // shares as fraction of engagements
-      if (shareShare >= 0.25) {
-        microCopy += " Shares are doing work here — feels like *resonance* or “send-to-a-friend” energy.";
-      }
-    } else if (Number.isFinite(views) && views > 0) {
-      const shareRate = shares / views;
-      if (shareRate >= 0.01) {
-        microCopy += " Shares look strong vs views — people might be passing this around for a reason.";
-      }
-    }
-  }
-
-  // If Above Goal ER → jibbit rain
-  if (hasER && erVs === "above") startJibbitRain(2600);
-
-  // Human channel label
-  const channelLabel = channelSelect.options[channelSelect.selectedIndex].text;
-
-  // Delayed reveal
-  setTimeout(() => {
-    result.innerHTML = `
-      <div>${channelLabel} — ${label}</div>
-      <div class="microcopy">${microCopy}</div>
-      ${detailLine ? `<div class="microcopy" style="opacity:0.55">${detailLine}</div>` : ""}
-    `;
-    result.classList.add("show");
-  }, 500);
-}
-
-
-      stopJibbitRain();
-
       const [badMax, goodMax, betterMax] = thresholds[channel];
-
       let angle = -90;
-      let label = "Close but no 🥴";
-      let microCopy = "Oof. This croc stayed dormant.";
+      if (er < badMax) angle = -90;
+      else if (er < goodMax) angle = -30;
+      else if (er < betterMax) angle = 30;
+      else angle = 90;
+      needle.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+    } else {
+      needle.style.transform = `translate(-50%, -50%) rotate(-90deg)`;
+    }
 
-      if (er < badMax) {
-        angle = -90;
-        label = "Close but no 🥴";
-        microCopy = "Oof. This croc stayed dormant.";
-      } else if (er < goodMax) {
-        angle = -30;
-        label = "Good 👍";
-        microCopy = "A solid splash.";
-      } else if (er < betterMax) {
-        angle = 30;
-        label = "Better 🔥";
-        microCopy = "Now we’re really snapping.";
+    // Build insight text
+    let label = "";
+    let microCopy = "";
+    let detailLine = "";
+
+    // Case 1: Views + Engagements present (most powerful)
+    if (hasViews && hasEng) {
+      if (viewsTier === "above" && engTier === "below") {
+        label = "Hook landed. Bite didn’t.";
+        microCopy = "Views popped but engagement lagged. What got the click — and what didn’t earn the action?";
+      } else if (viewsTier === "below" && engTier === "above") {
+        label = "Small crowd, big feelings.";
+        microCopy = "Engagement is strong for the reach you got. Worth testing new distribution or a stronger opening frame.";
+      } else if (viewsTier === "above" && engTier === "above") {
+        label = "Certified snapper.";
+        microCopy = "Above-average views *and* engagement. Bottle the strategy and run it back.";
+      } else if (viewsTier === "below" && engTier === "below") {
+        label = "Quiet waters.";
+        microCopy = "Below average on both. Worth revisiting hook, format, or who this is really for.";
       } else {
-        angle = 90;
-        label = "Killin’ It 🐊";
-        microCopy = "Big bite energy.";
-        startJibbitRain(2600);
+        label = "In the pocket.";
+        microCopy = "Near benchmark levels. Small tweaks could push this into ‘above’ territory.";
       }
 
-      needle.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
-
-      const channelLabel = channelSelect.options[channelSelect.selectedIndex].text;
-
-      result.classList.remove("show");
-      setTimeout(() => {
-        result.innerHTML = `
-          <div>${channelLabel} ER ${er}% — ${label}</div>
-          <div class="microcopy">${microCopy}</div>
-        `;
-        result.classList.add("show");
-      }, 500);
+      if (hasER) {
+        detailLine =
+          erSource === "calculated"
+            ? `Calculated ER: ${er.toFixed(2)}% (Goal: ${bm.erGoal}%)`
+            : `ER: ${er.toFixed(2)}% (Goal: ${bm.erGoal}%)`;
+      }
     }
-  </script>
+
+    // Case 2: Engagements only
+    else if (hasEng && !hasViews && !hasER) {
+      label = (engTier === "above") ? "People showed up." : "A lil under.";
+      microCopy =
+        (engTier === "above")
+          ? "Engagement is above benchmark — something’s resonating. What’s the repeatable ingredient?"
+          : "Under benchmark — what might be missing: clarity, payoff, or reason to comment/save?";
+      detailLine = `Engagement avg: ${bm.engAvg}`;
+    }
+
+    // Case 3: Views only
+    else if (hasViews && !hasEng && !hasER) {
+      label = (viewsTier === "above") ? "Hook did its job." : "Not grabbing yet.";
+      microCopy =
+        (viewsTier === "above")
+          ? "Views are above benchmark — your packaging is working. Next: add a stronger ‘why engage’ beat."
+          : "Views are under benchmark — hook, first 1–2 seconds, or targeting might need a tweak.";
+      detailLine = `Views avg: ${bm.viewsAvg}`;
+    }
+
+    // Case 4: ER only (provided)
+    else if (hasER) {
+      label = (erVsGoal === "above") ? "Above goal 🐊" : "Under goal 🥴";
+      microCopy =
+        (erVsGoal === "above")
+          ? "ER is above goal — this is performing with intent. What about it feels *save/share worthy*?"
+          : "ER is under goal — attention didn’t convert to action. Where’s the drop-off happening?";
+      detailLine = `Goal ER: ${bm.erGoal}%`;
+    }
+
+    // Nothing entered
+    else {
+      alert("Enter at least one metric (Views, Engagements, Shares, or ER%).");
+      return;
+    }
+
+    // Optional Shares add-on
+    if (hasShares) {
+      if (hasEng) {
+        const shareShare = shares / eng;
+        if (shareShare >= 0.25) {
+          microCopy += " Shares are doing work here — strong resonance / ‘send-to-a-friend’ energy.";
+        }
+      } else if (hasViews) {
+        const shareRate = shares / views;
+        if (shareRate >= 0.01) {
+          microCopy += " Shares look strong vs views — people are passing it around for a reason.";
+        }
+      }
+    }
+
+    // ER above goal = jibbit rain
+    if (hasER && erVsGoal === "above") startJibbitRain(2600);
+
+    // Render
+    const channelLabel = channelSelect.options[channelSelect.selectedIndex].text;
+
+    setTimeout(() => {
+      result.innerHTML = `
+        <div>${channelLabel} — ${label}</div>
+        <div class="microcopy">${microCopy}</div>
+        ${detailLine ? `<div class="microcopy" style="opacity:0.55">${detailLine}</div>` : ""}
+      `;
+      result.classList.add("show");
+    }, 500);
+  }
+</script>
+
 </body>
 </html>
