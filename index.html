@@ -126,22 +126,22 @@
     /* Vibes image button on dial */
 .vibes-btn {
   position: absolute;
-  top: 20px;
-  left: 90px;
+  top: 12px;      /* distance from TOP edge of dial */
+  left: 12px;     /* distance from LEFT edge of dial */
   background: transparent;
   border: none;
   padding: 0;
   cursor: pointer;
-  z-index: 10; /* above dial + needle */
+  z-index: 10;    /* above dial + needle */
 }
 
 .vibes-btn img {
-  width: 300px;          /* adjust size here */
+  width: 120px;   /* sticker size — adjust if needed */
   height: auto;
   display: block;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
-  transition: transform 0.15s ease, filter 0.15s ease;
+  filter: drop-shadow(0 6px 10px rgba(0,0,0,0.55));
 }
+
 
 .vibes-btn:hover img {
   transform: scale(1.05);
@@ -261,11 +261,12 @@
   </div>
 
   <div class="meter-container">
+     <!-- VIBES button lives INSIDE the dial container -->
+  <button class="vibes-btn" id="vibesBtn" aria-label="Play vibes">
+    <img src="vibes.png" alt="Vibes">
+  </button>
     <img src="meter-bg.png" class="meter-bg" alt="Croc ER meter" />
 
-<button id="vibesBtn" class="vibes-btn" type="button" aria-label="Play vibes">
-  <img src="vibes-icon.png" alt="Vibes" />
-</button>
 
 
 
