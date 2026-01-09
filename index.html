@@ -251,7 +251,6 @@
 
     <input id="viewsInput" type="number" step="1" placeholder="Views (optional)" disabled />
 <input id="engInput" type="number" step="1" placeholder="Engagements (optional)" disabled />
-<input id="sharesInput" type="number" step="1" placeholder="Shares (optional)" disabled />
 <input id="erInput" type="number" step="0.1" placeholder="ER% (optional)" disabled />
 
     <button id="checkBtn" type="button" disabled>Gauge It</button>
@@ -286,7 +285,6 @@
   const channelSelect = document.getElementById("channelSelect");
   const viewsInput = document.getElementById("viewsInput");
   const engInput = document.getElementById("engInput");
-  const sharesInput = document.getElementById("sharesInput");
   const erInput = document.getElementById("erInput");
 
   const checkBtn = document.getElementById("checkBtn");
@@ -332,13 +330,11 @@
   function hasAtLeastOneMetric() {
     const views = Number(viewsInput.value);
     const eng = Number(engInput.value);
-    const shares = Number(sharesInput.value);
     const er = Number(erInput.value);
 
     return (
       (Number.isFinite(views) && views > 0) ||
       (Number.isFinite(eng) && eng > 0) ||
-      (Number.isFinite(shares) && shares > 0) ||
       (Number.isFinite(er) && er > 0)
     );
   }
@@ -444,7 +440,6 @@
   function setInputsEnabled(enabled) {
     viewsInput.disabled = !enabled;
     engInput.disabled = !enabled;
-    sharesInput.disabled = !enabled;
     erInput.disabled = !enabled;
   }
 
@@ -459,7 +454,6 @@
     // reset fields when switching channel
     viewsInput.value = "";
     engInput.value = "";
-    sharesInput.value = "";
     erInput.value = "";
 
     stopJibbitRain();
@@ -471,7 +465,7 @@
   });
 
   // Re-check button state whenever user types
-  [viewsInput, engInput, sharesInput, erInput].forEach((el) => {
+  [viewsInput, engInput, erInput].forEach((el) => {
     el.addEventListener("input", updateGaugeButtonState);
     el.addEventListener("keydown", (e) => {
       if (e.key === "Enter" && !checkBtn.disabled) updateMeter();
@@ -498,12 +492,10 @@
 
     const views = viewsInput.value ? Number(viewsInput.value) : null;
     const eng = engInput.value ? Number(engInput.value) : null;
-    const shares = sharesInput.value ? Number(sharesInput.value) : null;
     const erProvided = erInput.value ? Number(erInput.value) : null;
 
     const hasViews = Number.isFinite(views) && views > 0;
     const hasEng = Number.isFinite(eng) && eng > 0;
-    const hasShares = Number.isFinite(shares) && shares > 0;
 
     // ER can be user-provided OR calculated from views+eng
     let er = null;
@@ -626,24 +618,11 @@ needle.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
 
     // Nothing entered
     else {
-      alert("Enter at least one metric (Views, Engagements, Shares, or ER%).");
+      alert("Enter at least one metric (Views, Engagements, or ER%).");
       return;
     }
 
-    // Optional Shares add-on
-    if (hasShares) {
-      if (hasEng) {
-        const shareShare = shares / eng;
-        if (shareShare >= 0.25) {
-          microCopy += " Shares are doing work here — strong resonance / ‘send-to-a-friend’ energy.";
-        }
-      } else if (hasViews) {
-        const shareRate = shares / views;
-        if (shareRate >= 0.01) {
-          microCopy += " Shares look strong vs views — people are passing it around for a reason.";
-        }
-      }
-    }
+    
 
     // ER above goal = jibbit rain
     if (hasER && erVsGoal === "above") startJibbitRain(2600);
