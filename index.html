@@ -268,6 +268,7 @@
 </button>
 
 
+
     <div class="needle-pivot">
       <img src="needle-croc.png" class="needle" id="needle" alt="Needle" />
     </div>
@@ -296,11 +297,15 @@ function stopVibes() {
     clearTimeout(vibesTimer);
     vibesTimer = null;
   }
+
   vibesAudio.pause();
   vibesAudio.currentTime = 0;
   isVibing = false;
-  vibesBtn.textContent = "VIBES";
+
+  // ✅ remove visual "playing" state instead of changing text
+  vibesBtn.classList.remove("playing");
 }
+
 
 function startVibes() {
   // Play from the beginning for 20 seconds
@@ -308,23 +313,24 @@ function startVibes() {
 
   vibesAudio.play().then(() => {
     isVibing = true;
-    vibesBtn.textContent = "STOP";
+
+    // ✅ instead of changing text (which deletes your image),
+    // just toggle a class
+    vibesBtn.classList.add("playing");
 
     vibesTimer = setTimeout(() => {
       stopVibes();
     }, 20000); // 20 seconds
   }).catch(() => {
-    // If browser blocks playback for any reason, keep UI stable
     isVibing = false;
-    vibesBtn.textContent = "VIBES";
+
+    // ✅ keep image, remove playing state
+    vibesBtn.classList.remove("playing");
+
     alert("Tap VIBES again to allow audio playback.");
   });
 }
 
-vibesBtn.addEventListener("click", () => {
-  if (isVibing) stopVibes();
-  else startVibes();
-});
 
     // ER thresholds by channel
     const thresholds = {
