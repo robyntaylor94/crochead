@@ -1,277 +1,263 @@
-
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Croc ER Meter</title>
+
+  <!-- Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
-   body {
-  margin: 0;
-  font-family: 'Space Grotesk', Arial, sans-serif;
-  text-align: center;
-  padding: 40px 20px;
-  background: #000;
-  color: #fff;
-} 
-.input-area {
-  margin-bottom: 30px; /* increase if you want more space */
-}
-input:disabled, button:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
+    /* ----------------------------
+       Base
+    ---------------------------- */
+    :root {
+      --bg: #000;
+      --panel: #111;
+      --text: #fff;
+      --border: #444;
+      --lime: #7CFF00;
+    }
 
-select {
-  cursor: pointer;
-}
+    body {
+      margin: 0;
+      padding: 40px 20px;
+      text-align: center;
+      font-family: 'Space Grotesk', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
 
+    /* Make sure grain sits behind content */
+    body > * {
+      position: relative;
+      z-index: 1;
+    }
 
+    /* ----------------------------
+       Inputs
+    ---------------------------- */
+    .input-area {
+      margin-bottom: 30px;
+    }
 
-
-
-    /* This is the fixed pivot point (center of the dial) */
-/* Fixed pivot point (dial center) */
-.needle-pivot {
-  position: absolute;
-  left: 50%;
-  top: 55%;         /* <-- adjust this up/down until the circle sits on dial center */
-  width: 0;
-  height: 0;
-}
-
-/* Needle image rotates around the spiky circle center */
-.needle {
-  position: absolute;
-  width: 320px;     /* tweak size */
-  left: 0;
-  top: 0;
-
-  /* These two are the KEY:
-     Put the spiky-circle center on the pivot point */
-  transform: translate(-50%, -50%) rotate(-90deg);
-
-  /* Set origin to the circle center INSIDE the image */
-  transform-origin: 50% 92%;  /* <-- tweak this to match the circle's center */
-
-  transition: transform 0.8s ease;
-  pointer-events: none;
-}
-
-#result {
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-#result.show {
-  opacity: 1;
-}
-
-
-    input {
-      padding: 10px;
+    input,
+    button,
+    select {
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 12px 18px;
+      border-radius: 12px;
       font-size: 16px;
-      width: 100px;
+      font-family: 'Space Grotesk', Arial, sans-serif;
+    }
+
+    select {
+      margin-right: 10px;
+      cursor: pointer;
     }
 
     button {
-      padding: 10px 16px;
-      font-size: 16px;
       cursor: pointer;
-      font-family: 'Bebas Neue', sans-serif; /* match h1 */
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
 
+    input::placeholder {
+      color: #aaa;
+    }
 
+    input:disabled,
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    /* ----------------------------
+       Meter layout
+    ---------------------------- */
+    .meter-container {
+      position: relative;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+    }
+
+    .meter-bg {
+      width: auto;
+      height: auto;
+      max-width: 100%;
+      max-height: 70vh;
+      display: block;
+      border: 4px solid var(--lime);
+      border-radius: 12px;
+      box-shadow:
+        0 0 12px rgba(124, 255, 0, 0.8),
+        0 0 30px rgba(124, 255, 0, 0.6),
+        0 0 60px rgba(124, 255, 0, 0.35),
+        0 0 90px rgba(124, 255, 0, 0.2);
+    }
+
+    /* Fixed pivot point (center of the dial) */
+    .needle-pivot {
+      position: absolute;
+      left: 50%;
+      top: 55%; /* adjust until spiky circle center aligns */
+      width: 0;
+      height: 0;
+    }
+
+    /* Needle image rotates around the spiky circle center */
+    .needle {
+      position: absolute;
+      width: 320px;
+      left: 0;
+      top: 0;
+      transform: translate(-50%, -50%) rotate(-90deg);
+      transform-origin: 50% 92%; /* adjust until pivot matches circle center */
+      transition: transform 0.8s ease;
+      pointer-events: none;
+    }
+
+    /* ----------------------------
+       Result (delayed reveal)
+    ---------------------------- */
     #result {
       margin-top: 20px;
       font-size: 18px;
-      font-weight: bold;
+      font-weight: 700;
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
-    
 
-input, button {
-  background: #111;
-  color: #fff;
-  border: 1px solid #444;
+    #result.show {
+      opacity: 1;
+    }
 
-  padding: 12px 18px;
-  border-radius: 12px;   /* ← this rounds them */
-  font-size: 16px;
-  
-}
-select {
-  background: #111;
-  color: #fff;
-  border: 1px solid #444;
-  padding: 12px 18px;
-  border-radius: 12px;
-  font-size: 16px;
-  margin-right: 10px;
-}
+    .microcopy {
+      margin-top: 6px;
+      font-size: 14px;
+      opacity: 0.75;
+      font-weight: 400;
+    }
 
+    /* ----------------------------
+       Film grain overlay (background-only)
+    ---------------------------- */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: -25%;
+      pointer-events: none;
+      z-index: 0;
+      mix-blend-mode: screen;
+      opacity: 0.55;
+      background-size: 70px 70px;
+      background-image:
+        radial-gradient(circle at 15% 20%, rgba(255,255,255,0.35) 0.6px, transparent 0.7px),
+        radial-gradient(circle at 70% 30%, rgba(255,255,255,0.30) 0.6px, transparent 0.7px),
+        radial-gradient(circle at 40% 65%, rgba(255,255,255,0.25) 0.6px, transparent 0.7px),
+        radial-gradient(circle at 80% 75%, rgba(255,255,255,0.20) 0.6px, transparent 0.7px),
+        radial-gradient(circle at 25% 85%, rgba(255,255,255,0.22) 0.6px, transparent 0.7px);
+      animation: grain 1.8s steps(6) infinite;
+    }
 
-input::placeholder {
-  color: #aaa;
-}
+    @keyframes grain {
+      0%, 100% { transform: translate(0, 0); }
+      10% { transform: translate(-1%, -1%); }
+      20% { transform: translate(1%, 1%); }
+      30% { transform: translate(-2%, 1%); }
+      40% { transform: translate(2%, -1%); }
+      50% { transform: translate(-1%, 2%); }
+      60% { transform: translate(1%, -2%); }
+      70% { transform: translate(-2%, -1%); }
+      80% { transform: translate(1%, 1%); }
+      90% { transform: translate(-1%, -2%); }
+    }
 
+    /* ----------------------------
+       Jibbit rain
+    ---------------------------- */
+    #jibbitRain {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      overflow: hidden;
+    }
 
-.meter-container {
-  position: relative;
-  width: 100%;
-  margin: 0 auto;
-  display: flex;
-  justify-content: center;
-}
+    .jibbit {
+      position: absolute;
+      top: -80px;
+      will-change: transform, opacity;
+      opacity: 0.95;
+      filter: drop-shadow(0 8px 10px rgba(0,0,0,0.45));
+      animation: jibbitFall linear forwards;
+    }
 
+    @keyframes jibbitFall {
+      0%   { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 0; }
+      10%  { opacity: 0.95; }
+      100% { transform: translate3d(var(--drift, 0px), 120vh, 0) rotate(var(--spin, 0deg)); opacity: 0.95; }
+    }
 
-.meter-bg {
-  width: auto;          /* don't force it wider than its natural size */
-  height: auto;         /* keep aspect ratio */
-  max-width: 100%;      /* still responsive on small screens */
-  max-height: 70vh;     /* keep it from taking over vertically */
-  display: block;
-  image-rendering: auto;
-  border: 4px solid #7CFF00;   /* lime green */
-  border-radius: 12px;         /* optional: slight rounding */
- 
-  box-shadow:
-  0 0 12px rgba(124, 255, 0, 0.8),
-  0 0 30px rgba(124, 255, 0, 0.6),
-  0 0 60px rgba(124, 255, 0, 0.35),
-  0 0 90px rgba(124, 255, 0, 0.2);
-
-}
-/* OBVIOUS film grain overlay (background-only) */
-body::before {
-  content: "";
-  position: fixed;
-  inset: -25%;
-
-  /* White-biased film grain */
-  background-image:
-    radial-gradient(circle at 15% 20%, rgba(255,255,255,0.35) 0.6px, transparent 0.7px),
-    radial-gradient(circle at 70% 30%, rgba(255,255,255,0.30) 0.6px, transparent 0.7px),
-    radial-gradient(circle at 40% 65%, rgba(255,255,255,0.25) 0.6px, transparent 0.7px),
-    radial-gradient(circle at 80% 75%, rgba(255,255,255,0.20) 0.6px, transparent 0.7px),
-    radial-gradient(circle at 25% 85%, rgba(255,255,255,0.22) 0.6px, transparent 0.7px);
-
-  background-size: 70px 70px;     /* dense grain */
-  opacity: 0.55;                  /* visible but not snowy */
-  mix-blend-mode: screen;         /* KEY for black backgrounds */
-  pointer-events: none;
-  z-index: 0;
-
-  animation: grain 1.8s steps(6) infinite;
-}
-
-
-body > * {
-  position: relative;
-  z-index: 1;
-}
-
-@keyframes grain {
-  0%, 100% { transform: translate(0, 0); }
-  10% { transform: translate(-1%, -1%); }
-  20% { transform: translate(1%, 1%); }
-  30% { transform: translate(-2%, 1%); }
-  40% { transform: translate(2%, -1%); }
-  50% { transform: translate(-1%, 2%); }
-  60% { transform: translate(1%, -2%); }
-  70% { transform: translate(-2%, -1%); }
-  80% { transform: translate(1%, 1%); }
-  90% { transform: translate(-1%, -2%); }
-}
-/* Jibbit rain container (covers whole screen) */
-#jibbitRain {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 9999; /* above everything */
-  overflow: hidden;
-}
-
-/* Each falling jibbit */
-.jibbit {
-  position: absolute;
-  top: -80px; /* start above the viewport */
-  will-change: transform, opacity;
-  opacity: 0.95;
-  filter: drop-shadow(0 8px 10px rgba(0,0,0,0.45));
-  animation: jibbitFall linear forwards;
-}
-
-/* Falling animation */
-@keyframes jibbitFall {
-  0% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
-    opacity: 0.0;
-  }
-  10% {
-    opacity: 0.95;
-  }
-  100% {
-    transform: translate3d(var(--drift, 0px), 120vh, 0) rotate(var(--spin, 0deg));
-    opacity: 0.95;
-  }
-}
-
-/* Respect reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .jibbit { animation: none; }
-}
-
-
-
-
+    @media (prefers-reduced-motion: reduce) {
+      .jibbit { animation: none; }
+      body::before { animation: none; }
+    }
   </style>
 </head>
 
 <body>
- <h1>Enter ER %</h1>
+  <h1>Enter ER %</h1>
 
-<div class="input-area">
-  <select id="channelSelect">
-    <option value="" selected disabled>Select a channel</option>
-    <option value="instagram">Instagram</option>
-    <option value="tiktok">TikTok</option>
-    <option value="facebook">Facebook</option>
-    <option value="x">X (Twitter)</option>
-    <option value="linkedin">LinkedIn</option>
-  </select>
+  <div class="input-area">
+    <select id="channelSelect">
+      <option value="" selected disabled>Select a channel</option>
+      <option value="instagram">Instagram</option>
+      <option value="tiktok">TikTok</option>
+      <option value="facebook">Facebook</option>
+      <option value="x">X (Twitter)</option>
+      <option value="linkedin">LinkedIn</option>
+    </select>
 
-  <input id="erInput" type="number" step="0.1" placeholder="e.g. 3.5" disabled />
-<button id="checkBtn" onclick="updateMeter()" disabled>Gauge It</button>
-</div>
-
-
-
-  <div class="meter-container">
-    <img src="meter-bg.png" class="meter-bg" />
-
-    <div class="needle-pivot">
-  <img src="needle-croc.png" class="needle" id="needle" />
-   </div> 
-
+    <input id="erInput" type="number" step="0.1" placeholder="e.g. 3.5" disabled />
+    <button id="checkBtn" type="button" disabled>Gauge It</button>
   </div>
 
+  <div class="meter-container">
+    <img src="meter-bg.png" class="meter-bg" alt="Croc ER meter" />
+
+    <div class="needle-pivot">
+      <img src="needle-croc.png" class="needle" id="needle" alt="Needle" />
+    </div>
+  </div>
 
   <div id="result"></div>
   <div id="jibbitRain" aria-hidden="true"></div>
-  <!--script is last object in body-->
-<script>
+
+  <script>
     const channelSelect = document.getElementById("channelSelect");
     const erInput = document.getElementById("erInput");
     const checkBtn = document.getElementById("checkBtn");
     const result = document.getElementById("result");
+    const needle = document.getElementById("needle");
 
-    // Start disabled (in case HTML didn't load as expected)
+    // ER thresholds by channel
+    const thresholds = {
+      instagram: [2, 4, 6],
+      tiktok: [4, 7, 10],
+      facebook: [1, 2.5, 4],
+      x: [0.5, 1.5, 3],
+      linkedin: [1, 2, 3.5]
+    };
+
+    // --- Enable inputs only after channel selection ---
     erInput.disabled = true;
     checkBtn.disabled = true;
 
@@ -280,103 +266,92 @@ body > * {
       erInput.disabled = !hasChannel;
       checkBtn.disabled = !hasChannel;
 
-      // Optional: clear previous result when switching channels
       result.textContent = "";
+      result.classList.remove("show");
 
       if (hasChannel) erInput.focus();
     });
-let jibbitInterval = null;
 
-function startJibbitRain(durationMs = 2200) {
-  const rain = document.getElementById("jibbitRain");
-  if (!rain) return;
+    // Allow Enter key to trigger gauge
+    erInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !checkBtn.disabled) updateMeter();
+    });
 
-  // Clear any existing burst
-  stopJibbitRain();
+    checkBtn.addEventListener("click", updateMeter);
 
-  const start = Date.now();
+    // --- Jibbit rain ---
+    let jibbitInterval = null;
 
-  jibbitInterval = setInterval(() => {
-    // Stop after duration
-    if (Date.now() - start > durationMs) {
+    function startJibbitRain(durationMs = 2200) {
+      const rain = document.getElementById("jibbitRain");
+      if (!rain) return;
+
       stopJibbitRain();
-      return;
+      const start = Date.now();
+
+      jibbitInterval = setInterval(() => {
+        if (Date.now() - start > durationMs) {
+          stopJibbitRain();
+          return;
+        }
+
+        const count = Math.floor(Math.random() * 3) + 2; // 2–4
+        for (let i = 0; i < count; i++) {
+          const img = document.createElement("img");
+          img.src = "jibbit.png"; // make sure filename matches exactly
+          img.className = "jibbit";
+
+          const size = Math.floor(Math.random() * 60) + 28; // 28–88px
+          img.style.width = `${size}px`;
+          img.style.height = "auto";
+
+          img.style.left = `${Math.random() * 100}vw`;
+
+          const drift = (Math.random() * 120 - 60).toFixed(0);
+          const spin = (Math.random() * 360 - 180).toFixed(0);
+          img.style.setProperty("--drift", `${drift}px`);
+          img.style.setProperty("--spin", `${spin}deg`);
+
+          const fallDuration = (Math.random() * 1.2 + 1.6).toFixed(2);
+          img.style.animationDuration = `${fallDuration}s`;
+
+          img.addEventListener("animationend", () => img.remove());
+          rain.appendChild(img);
+        }
+      }, 180);
     }
 
-    // Create 2–4 jibbits per tick
-    const count = Math.floor(Math.random() * 3) + 2;
-
-    for (let i = 0; i < count; i++) {
-      const img = document.createElement("img");
-      img.src = "jibbit.png"; // <-- make sure filename matches your repo
-      img.className = "jibbit";
-
-      // Random size (px)
-      const size = Math.floor(Math.random() * 60) + 28; // 28–88px
-      img.style.width = `${size}px`;
-      img.style.height = "auto";
-
-      // Random x position
-      img.style.left = `${Math.random() * 100}vw`;
-
-      // Random drift + spin via CSS variables
-      const drift = (Math.random() * 120 - 60).toFixed(0); // -60..60px
-      const spin = (Math.random() * 360 - 180).toFixed(0); // -180..180deg
-      img.style.setProperty("--drift", `${drift}px`);
-      img.style.setProperty("--spin", `${spin}deg`);
-
-      // Random duration so they don’t fall uniformly
-      const fallDuration = (Math.random() * 1.2 + 1.6).toFixed(2); // 1.6–2.8s
-      img.style.animationDuration = `${fallDuration}s`;
-
-      // Remove after animation completes
-      img.addEventListener("animationend", () => img.remove());
-
-      rain.appendChild(img);
+    function stopJibbitRain() {
+      if (jibbitInterval) {
+        clearInterval(jibbitInterval);
+        jibbitInterval = null;
+      }
+      const rain = document.getElementById("jibbitRain");
+      if (rain) rain.innerHTML = "";
     }
-  }, 180); // frequency of spawns
-}
 
-function stopJibbitRain() {
-  if (jibbitInterval) {
-    clearInterval(jibbitInterval);
-    jibbitInterval = null;
-  }
-  const rain = document.getElementById("jibbitRain");
-  if (rain) rain.innerHTML = "";
-}
-
+    // --- Main meter update ---
     function updateMeter() {
-      const channel = document.getElementById("channelSelect").value;
-      const er = parseFloat(document.getElementById("erInput").value);
-      const needle = document.getElementById("needle");
-      const result = document.getElementById("result");
+      const channel = channelSelect.value;
+      const er = parseFloat(erInput.value);
 
       if (!channel) {
         alert("Please select a channel first");
         return;
       }
 
-      if (isNaN(er)) {
+      if (Number.isNaN(er)) {
         alert("Please enter an ER number");
         return;
       }
 
-      // ER thresholds by channel
-      const thresholds = {
-        instagram: [2, 4, 6],
-        tiktok: [4, 7, 10],
-        facebook: [1, 2.5, 4],
-        x: [0.5, 1.5, 3],
-        linkedin: [1, 2, 3.5]
-      };
+      stopJibbitRain();
 
       const [badMax, goodMax, betterMax] = thresholds[channel];
 
       let angle = -90;
-      let label = "Bad 🥴";
-      let microCopy = "";
-      stopJibbitRain();
+      let label = "Close but no 🥴";
+      let microCopy = "Oof. This croc stayed dormant.";
 
       if (er < badMax) {
         angle = -90;
@@ -388,34 +363,31 @@ function stopJibbitRain() {
         microCopy = "A solid splash.";
       } else if (er < betterMax) {
         angle = 30;
-        label = "Better🔥";
+        label = "Better 🔥";
         microCopy = "Now we’re really snapping.";
       } else {
         angle = 90;
-        label = "Killin It 🐊";
+        label = "Killin’ It 🐊";
         microCopy = "Big bite energy.";
         startJibbitRain(2600);
       }
 
+      // Move needle
       needle.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
 
-      const channelLabel =
-        document.querySelector(`#channelSelect option[value="${channel}"]`).textContent;
+      // Channel label (human readable)
+      const channelLabel = channelSelect.options[channelSelect.selectedIndex].text;
 
-    // Hide result immediately
-    result.classList.remove("show");
+      // Delayed reveal
+      result.classList.remove("show");
 
-    // Delay reveal for dramatic effect
-    setTimeout(() => {
-      result.innerHTML = `
-        <div>${channelLabel} ER ${er}% — ${label}</div>
-        <div style="margin-top:6px; font-size:14px; opacity:0.75;">
-          ${microCopy}
-        </div>
-      `;
-      result.classList.add("show");
-    }, 500);
-
+      setTimeout(() => {
+        result.innerHTML = `
+          <div>${channelLabel} ER ${er}% — ${label}</div>
+          <div class="microcopy">${microCopy}</div>
+        `;
+        result.classList.add("show");
+      }, 500);
     }
   </script>
 </body>
