@@ -11,9 +11,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
-    /* ----------------------------
-       Base
-    ---------------------------- */
     :root {
       --bg: #000;
       --panel: #111;
@@ -31,22 +28,13 @@
       color: var(--text);
     }
 
-    /* Make sure grain sits behind content */
-    body > * {
-      position: relative;
-      z-index: 1;
-    }
+    /* Grain behind content */
+    body > * { position: relative; z-index: 1; }
 
-    /* ----------------------------
-       Inputs
-    ---------------------------- */
-    .input-area {
-      margin-bottom: 30px;
-    }
+    /* Inputs */
+    .input-area { margin-bottom: 30px; }
 
-    input,
-    button,
-    select {
+    input, button, select {
       background: var(--panel);
       color: var(--text);
       border: 1px solid var(--border);
@@ -56,10 +44,7 @@
       font-family: 'Space Grotesk', Arial, sans-serif;
     }
 
-    select {
-      margin-right: 10px;
-      cursor: pointer;
-    }
+    select { margin-right: 10px; cursor: pointer; }
 
     button {
       cursor: pointer;
@@ -67,25 +52,25 @@
       text-transform: uppercase;
     }
 
-    input::placeholder {
-      color: #aaa;
-    }
+    input::placeholder { color: #aaa; }
 
-    input:disabled,
-    button:disabled {
+    input:disabled, button:disabled {
       opacity: 0.45;
       cursor: not-allowed;
     }
 
-    /* ----------------------------
-       Meter layout
-    ---------------------------- */
+    /* Meter layout */
     .meter-container {
-      position: relative;
       width: 100%;
-      margin: 0 auto;
       display: flex;
       justify-content: center;
+    }
+
+    /* KEY FIX: wrapper shrink-wraps to the dial image box */
+    .dial-wrap {
+      position: relative;
+      display: inline-block; /* makes the wrapper match image size */
+      line-height: 0;        /* prevents tiny gaps */
     }
 
     .meter-bg {
@@ -94,8 +79,10 @@
       max-width: 100%;
       max-height: 70vh;
       display: block;
+
       border: 4px solid var(--lime);
       border-radius: 12px;
+
       box-shadow:
         0 0 12px rgba(124, 255, 0, 0.8),
         0 0 30px rgba(124, 255, 0, 0.6),
@@ -103,59 +90,66 @@
         0 0 90px rgba(124, 255, 0, 0.2);
     }
 
-    /* Fixed pivot point (center of the dial) */
+    /* Needle pivot + needle */
     .needle-pivot {
       position: absolute;
       left: 50%;
-      top: 55%; /* adjust until spiky circle center aligns */
+      top: 55%;
       width: 0;
       height: 0;
+      pointer-events: none;
     }
 
-    /* Needle image rotates around the spiky circle center */
     .needle {
       position: absolute;
       width: 320px;
       left: 0;
       top: 0;
       transform: translate(-50%, -50%) rotate(-90deg);
-      transform-origin: 50% 92%; /* adjust until pivot matches circle center */
+      transform-origin: 50% 92%;
       transition: transform 0.8s ease;
       pointer-events: none;
     }
-    /* Vibes image button on dial */
-.vibes-btn {
-  position: absolute;
-  top: 12px;      /* distance from TOP edge of dial */
-  left: 12px;     /* distance from LEFT edge of dial */
-  background: transparent;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  z-index: 10;    /* above dial + needle */
-}
 
-.vibes-btn img {
-  width: 120px;   /* sticker size — adjust if needed */
-  height: auto;
-  display: block;
-  filter: drop-shadow(0 6px 10px rgba(0,0,0,0.55));
-}
+    /* Vibes image button (anchored to dial box) */
+    .vibes-btn {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: transparent;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      z-index: 10;
+    }
 
+    .vibes-btn img {
+      width: 120px;
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,0.55));
+      transition: transform 0.15s ease, filter 0.15s ease;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
 
-.vibes-btn:hover img {
-  transform: scale(1.05);
-  filter: drop-shadow(0 6px 12px rgba(0,0,0,0.75));
-}
+    .vibes-btn:hover img {
+      transform: scale(1.05);
+      filter: drop-shadow(0 6px 12px rgba(0,0,0,0.75));
+    }
 
-.vibes-btn:active img {
-  transform: scale(0.95);
-}
+    .vibes-btn:active img {
+      transform: scale(0.95);
+    }
 
+    /* Optional: when playing, add a glow */
+    .vibes-btn.playing img {
+      filter:
+        drop-shadow(0 0 10px rgba(124, 255, 0, 0.55))
+        drop-shadow(0 8px 12px rgba(0,0,0,0.6));
+    }
 
-    /* ----------------------------
-       Result (delayed reveal)
-    ---------------------------- */
+    /* Result */
     #result {
       margin-top: 20px;
       font-size: 18px;
@@ -163,10 +157,7 @@
       opacity: 0;
       transition: opacity 0.3s ease;
     }
-
-    #result.show {
-      opacity: 1;
-    }
+    #result.show { opacity: 1; }
 
     .microcopy {
       margin-top: 6px;
@@ -175,9 +166,7 @@
       font-weight: 400;
     }
 
-    /* ----------------------------
-       Film grain overlay (background-only)
-    ---------------------------- */
+    /* Film grain overlay */
     body::before {
       content: "";
       position: fixed;
@@ -209,9 +198,7 @@
       90% { transform: translate(-1%, -2%); }
     }
 
-    /* ----------------------------
-       Jibbit rain
-    ---------------------------- */
+    /* Jibbit rain */
     #jibbitRain {
       position: fixed;
       inset: 0;
@@ -257,29 +244,29 @@
 
     <input id="erInput" type="number" step="0.1" placeholder="e.g. 6.5" disabled />
     <button id="checkBtn" type="button" disabled>Gauge It</button>
-
   </div>
 
   <div class="meter-container">
-     <!-- VIBES button lives INSIDE the dial container -->
-  <button class="vibes-btn" id="vibesBtn" aria-label="Play vibes">
-    <img src="vibes.png" alt="Vibes">
-  </button>
-    <img src="meter-bg.png" class="meter-bg" alt="Croc ER meter" />
+    <div class="dial-wrap">
+      <!-- VIBES button anchored to dial box -->
+      <button class="vibes-btn" id="vibesBtn" type="button" aria-label="Play vibes">
+        <img src="vibes.png" alt="Vibes">
+      </button>
 
+      <img src="meter-bg.png" class="meter-bg" alt="Croc ER meter" />
 
-
-
-    <div class="needle-pivot">
-      <img src="needle-croc.png" class="needle" id="needle" alt="Needle" />
+      <div class="needle-pivot">
+        <img src="needle-croc.png" class="needle" id="needle" alt="Needle" />
+      </div>
     </div>
   </div>
 
   <div id="result"></div>
   <div id="jibbitRain" aria-hidden="true"></div>
-<audio id="vibesAudio" preload="auto">
-  <source src="vibes.mp3" type="audio/mpeg">
-</audio>
+
+  <audio id="vibesAudio" preload="auto">
+    <source src="vibes.mp3" type="audio/mpeg">
+  </audio>
 
   <script>
     const channelSelect = document.getElementById("channelSelect");
@@ -287,53 +274,50 @@
     const checkBtn = document.getElementById("checkBtn");
     const result = document.getElementById("result");
     const needle = document.getElementById("needle");
-const vibesBtn = document.getElementById("vibesBtn");
-const vibesAudio = document.getElementById("vibesAudio");
 
-let vibesTimer = null;
-let isVibing = false;
+    const vibesBtn = document.getElementById("vibesBtn");
+    const vibesAudio = document.getElementById("vibesAudio");
 
-function stopVibes() {
-  if (vibesTimer) {
-    clearTimeout(vibesTimer);
-    vibesTimer = null;
-  }
+    // --- VIBES logic ---
+    let vibesTimer = null;
+    let isVibing = false;
 
-  vibesAudio.pause();
-  vibesAudio.currentTime = 0;
-  isVibing = false;
+    function stopVibes() {
+      if (vibesTimer) {
+        clearTimeout(vibesTimer);
+        vibesTimer = null;
+      }
+      vibesAudio.pause();
+      vibesAudio.currentTime = 0;
+      isVibing = false;
+      vibesBtn.classList.remove("playing");
+    }
 
-  // ✅ remove visual "playing" state instead of changing text
-  vibesBtn.classList.remove("playing");
-}
+    function startVibes() {
+      vibesAudio.currentTime = 0;
 
+      vibesAudio.play().then(() => {
+        isVibing = true;
+        vibesBtn.classList.add("playing");
 
-function startVibes() {
-  // Play from the beginning for 20 seconds
-  vibesAudio.currentTime = 0;
+        vibesTimer = setTimeout(() => {
+          stopVibes();
+        }, 20000);
+      }).catch(() => {
+        // Autoplay restrictions happen sometimes; this keeps UI stable
+        isVibing = false;
+        vibesBtn.classList.remove("playing");
+        alert("Tap VIBES again to allow audio playback.");
+      });
+    }
 
-  vibesAudio.play().then(() => {
-    isVibing = true;
+    // ✅ THIS WAS MISSING IN YOUR VERSION:
+    vibesBtn.addEventListener("click", () => {
+      if (isVibing) stopVibes();
+      else startVibes();
+    });
 
-    // ✅ instead of changing text (which deletes your image),
-    // just toggle a class
-    vibesBtn.classList.add("playing");
-
-    vibesTimer = setTimeout(() => {
-      stopVibes();
-    }, 20000); // 20 seconds
-  }).catch(() => {
-    isVibing = false;
-
-    // ✅ keep image, remove playing state
-    vibesBtn.classList.remove("playing");
-
-    alert("Tap VIBES again to allow audio playback.");
-  });
-}
-
-
-    // ER thresholds by channel
+    // --- ER thresholds ---
     const thresholds = {
       instagram: [2, 4, 6],
       tiktok: [4, 7, 10],
@@ -342,7 +326,7 @@ function startVibes() {
       linkedin: [1, 2, 3.5]
     };
 
-    // --- Enable inputs only after channel selection ---
+    // Enable inputs only after channel selection
     erInput.disabled = true;
     checkBtn.disabled = true;
 
@@ -357,7 +341,6 @@ function startVibes() {
       if (hasChannel) erInput.focus();
     });
 
-    // Allow Enter key to trigger gauge
     erInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter" && !checkBtn.disabled) updateMeter();
     });
@@ -383,7 +366,7 @@ function startVibes() {
         const count = Math.floor(Math.random() * 3) + 2; // 2–4
         for (let i = 0; i < count; i++) {
           const img = document.createElement("img");
-          img.src = "jibbit.png"; // make sure filename matches exactly
+          img.src = "jibbit.png";
           img.className = "jibbit";
 
           const size = Math.floor(Math.random() * 100) + 70; // 70–170px
@@ -457,15 +440,11 @@ function startVibes() {
         startJibbitRain(2600);
       }
 
-      // Move needle
       needle.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
 
-      // Channel label (human readable)
       const channelLabel = channelSelect.options[channelSelect.selectedIndex].text;
 
-      // Delayed reveal
       result.classList.remove("show");
-
       setTimeout(() => {
         result.innerHTML = `
           <div>${channelLabel} ER ${er}% — ${label}</div>
