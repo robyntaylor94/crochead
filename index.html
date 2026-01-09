@@ -11,7 +11,11 @@
   padding: 40px 20px;
   background: #000;
   color: #fff;
+} 
+.input-area {
+  margin-bottom: 40px; /* increase if you want more space */
 }
+
 
 
 
@@ -112,8 +116,11 @@ input::placeholder {
 <body>
   <h1>Enter ER %</h1>
 
+<div class="input-area">
   <input id="erInput" type="number" step="0.1" placeholder="e.g. 3.5" />
   <button onclick="updateMeter()">Check</button>
+</div>
+
 
   <div class="meter-container">
     <img src="meter-bg.png" class="meter-bg" />
