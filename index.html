@@ -65,6 +65,11 @@
       display: flex;
       justify-content: center;
     }
+    .meter-wrapper {
+  position: relative; /* THIS is the anchor */
+  display: inline-block;
+}
+
 
     /* KEY FIX: wrapper shrink-wraps to the dial image box */
     .dial-wrap {
@@ -112,16 +117,17 @@
     }
 
     /* Vibes image button (anchored to dial box) */
-    .vibes-btn {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      background: transparent;
-      border: none;
-      padding: 0;
-      cursor: pointer;
-      z-index: 10;
-    }
+   .vibes-btn {
+  position: absolute;
+  top: -18px;     /* pulls it slightly into the green glow */
+  left: -18px;    /* hugs the corner like a sticker */
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 10;
+}
+
 
     .vibes-btn img {
       width: 240px;
@@ -247,19 +253,19 @@
   </div>
 
   <div class="meter-container">
-    <div class="dial-wrap">
-      <!-- VIBES button anchored to dial box -->
-      <button class="vibes-btn" id="vibesBtn" type="button" aria-label="Play vibes">
-        <img src="vibes.png" alt="Vibes">
-      </button>
+  <div class="meter-wrapper">
+    <button class="vibes-btn" id="vibesBtn" aria-label="Play vibes">
+      <img src="vibes.png" alt="Vibes">
+    </button>
 
-      <img src="meter-bg.png" class="meter-bg" alt="Croc ER meter" />
+    <img src="meter-bg.png" class="meter-bg" alt="Croc ER meter" />
 
-      <div class="needle-pivot">
-        <img src="needle-croc.png" class="needle" id="needle" alt="Needle" />
-      </div>
+    <div class="needle-pivot">
+      <img src="needle-croc.png" class="needle" id="needle" alt="Needle" />
     </div>
   </div>
+</div>
+
 
   <div id="result"></div>
   <div id="jibbitRain" aria-hidden="true"></div>
