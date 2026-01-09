@@ -119,29 +119,30 @@ input::placeholder {
   0 0 90px rgba(124, 255, 0, 0.2);
 
 }
-/* Grain overlay */
+/* OBVIOUS film grain overlay (background-only) */
 body::before {
   content: "";
   position: fixed;
-  inset: 0;
+  inset: -20%; /* oversize so movement doesn't reveal edges */
 
-  /* Real speckle noise using multiple micro-gradients */
+  /* denser speckle field */
   background-image:
-    radial-gradient(circle at 20% 30%, rgba(255,255,255,0.12) 0.6px, transparent 0.7px),
-    radial-gradient(circle at 80% 40%, rgba(255,255,255,0.10) 0.6px, transparent 0.7px),
-    radial-gradient(circle at 40% 80%, rgba(255,255,255,0.08) 0.6px, transparent 0.7px),
-    radial-gradient(circle at 60% 10%, rgba(0,0,0,0.35) 0.8px, transparent 0.9px),
-    radial-gradient(circle at 10% 60%, rgba(0,0,0,0.25) 0.8px, transparent 0.9px);
+    radial-gradient(circle at 10% 20%, rgba(255,255,255,0.20) 0.7px, transparent 0.8px),
+    radial-gradient(circle at 80% 30%, rgba(255,255,255,0.16) 0.7px, transparent 0.8px),
+    radial-gradient(circle at 40% 70%, rgba(255,255,255,0.14) 0.7px, transparent 0.8px),
+    radial-gradient(circle at 60% 10%, rgba(0,0,0,0.55) 0.9px, transparent 1px),
+    radial-gradient(circle at 20% 80%, rgba(0,0,0,0.45) 0.9px, transparent 1px),
+    radial-gradient(circle at 70% 85%, rgba(255,255,255,0.10) 0.7px, transparent 0.8px),
+    radial-gradient(circle at 35% 40%, rgba(0,0,0,0.35) 0.9px, transparent 1px);
 
-  background-size: 160px 160px;  /* smaller = more grain */
-  opacity: 0.6;                  /* more visible */
-  mix-blend-mode: soft-light;    /* nice on dark bg */
+  background-size: 80px 80px;   /* much denser grain */
+  opacity: 0.85;                /* stronger */
+  mix-blend-mode: overlay;      /* higher contrast on black */
   pointer-events: none;
   z-index: 0;
 
-  animation: grain 3.5s steps(8) infinite;
+  animation: grain 2.2s steps(7) infinite;
 }
-
 
 body > * {
   position: relative;
@@ -160,6 +161,7 @@ body > * {
   80% { transform: translate(1%, 1%); }
   90% { transform: translate(-1%, -2%); }
 }
+
 
 
 
