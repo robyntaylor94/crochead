@@ -62,7 +62,14 @@ select {
   pointer-events: none;
 }
 
+#result {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
 
+#result.show {
+  opacity: 1;
+}
 
 
     input {
@@ -269,19 +276,24 @@ channelSelect.addEventListener("change", () => {
 
   let angle = -90;
   let label = "Bad 🥴";
+  let microCopy = "";
 
   if (er < badMax) {
     angle = -90;
     label = "Close but no 🥴";
+    microCopy = "Oof. This croc stayed dormant.";
   } else if (er < goodMax) {
     angle = -30;
     label = "Good 👍";
+    microCopy = "A solid splash.";
   } else if (er < betterMax) {
     angle = 30;
     label = "Better🔥";
+    microCopy = "Now we’re really snapping.";
   } else {
     angle = 90;
     label = "Killin It 🐊";
+    microCopy = "Big bite energy.";
   }
 
   needle.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
@@ -289,7 +301,20 @@ channelSelect.addEventListener("change", () => {
   const channelLabel =
     document.querySelector(`#channelSelect option[value="${channel}"]`).textContent;
 
-  result.textContent = `${channelLabel} ER ${er}% — ${label}`;
+ // Hide result immediately
+result.classList.remove("show");
+
+// Delay reveal for dramatic effect
+setTimeout(() => {
+  result.innerHTML = `
+    <div>${channelLabel} ER ${er}% — ${label}</div>
+    <div style="margin-top:6px; font-size:14px; opacity:0.75;">
+      ${microCopy}
+    </div>
+  `;
+  result.classList.add("show");
+}, 500);
+
 }
 
   </script>
