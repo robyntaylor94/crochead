@@ -374,7 +374,8 @@
 <input id="erInput" type="number" step="0.1" placeholder="ER% (optional)" disabled />
 
     <button id="checkBtn" type="button" disabled>Gauge It</button>
-    <button id="aboutBtn" class="about-btn">About</button>
+    <button id="aboutBtn" type="button" class="about-btn">About</button>
+
 
   </div>
 
@@ -451,10 +452,10 @@
 
   const checkBtn = document.getElementById("checkBtn");
   const result = document.getElementById("result");
-  const needle = document.getElementById("needle");
-  const needle = document.getElementById("needle");
+const needle = document.getElementById("needle");
 needle.style.setProperty("--needle-angle", "-90deg");
 needle.classList.add("hovering");
+
 
 
   const vibesBtn = document.getElementById("vibesBtn");
@@ -719,20 +720,13 @@ if (hasER) {
 
 needle.classList.remove("hovering");
 needle.style.setProperty("--needle-angle", `${angle}deg`);
-needle.classList.remove("hovering");
-needle.style.setProperty("--needle-angle", `${angle}deg`);
 needle.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
 
 // resume hover after motion finishes
 setTimeout(() => {
   needle.classList.add("hovering");
-}, 850); // slightly longer than your 0.8s transition
+}, 850);
 
-
-// resume hover after motion finishes
-setTimeout(() => {
-  needle.classList.add("hovering");
-}, 850); // slightly longer than your 0.8s transition
 
 
 
