@@ -119,6 +119,26 @@ input::placeholder {
   0 0 90px rgba(124, 255, 0, 0.2);
 
 }
+/* Grain overlay */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    repeating-radial-gradient(circle at 0 0,
+      rgba(255,255,255,0.03),
+      rgba(255,255,255,0.03) 1px,
+      rgba(0,0,0,0.03) 1px,
+      rgba(0,0,0,0.03) 2px
+    );
+  opacity: 0.25;        /* controls grain intensity */
+  pointer-events: none;
+  z-index: 1;
+}
+body > * {
+  position: relative;
+  z-index: 2;
+}
 
 
 
@@ -162,16 +182,16 @@ input::placeholder {
 
       if (er < 2) {
         angle = -90;
-        label = "Bad 🥴";
+        label = "Not it yet 🥴";
       } else if (er < 4) {
         angle = -30;
         label = "Good 👍";
       } else if (er < 6) {
         angle = 30;
-        label = "Better 😎";
+        label = "Killin it🔥";
       } else {
         angle = 90;
-        label = "Above Goal 🐊🔥";
+        label = "Above Goal 🐊";
       }
 
   needle.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
