@@ -132,6 +132,18 @@
       pointer-events: none;
     }
 
+    @keyframes needleHover {
+  0%   { transform: translate(-50%, -50%) rotate(var(--needle-angle)); }
+  50%  { transform: translate(-50%, -48%) rotate(var(--needle-angle)); }
+  100% { transform: translate(-50%, -50%) rotate(var(--needle-angle)); }
+}
+
+.needle.hovering {
+  animation: needleHover 3.2s cubic-bezier(0.4, 0.0, 0.2, 1) infinite;
+}
+
+
+
     /* Vibes image button (anchored to dial box) */
    .vibes-btn {
   position: absolute;
@@ -440,6 +452,10 @@
   const checkBtn = document.getElementById("checkBtn");
   const result = document.getElementById("result");
   const needle = document.getElementById("needle");
+  const needle = document.getElementById("needle");
+needle.style.setProperty("--needle-angle", "-90deg");
+needle.classList.add("hovering");
+
 
   const vibesBtn = document.getElementById("vibesBtn");
   const vibesAudio = document.getElementById("vibesAudio");
@@ -701,7 +717,23 @@ if (hasER) {
   angle = -90; // default parked
 }
 
+needle.classList.remove("hovering");
+needle.style.setProperty("--needle-angle", `${angle}deg`);
+needle.classList.remove("hovering");
+needle.style.setProperty("--needle-angle", `${angle}deg`);
 needle.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+
+// resume hover after motion finishes
+setTimeout(() => {
+  needle.classList.add("hovering");
+}, 850); // slightly longer than your 0.8s transition
+
+
+// resume hover after motion finishes
+setTimeout(() => {
+  needle.classList.add("hovering");
+}, 850); // slightly longer than your 0.8s transition
+
 
 
     // Build insight text
