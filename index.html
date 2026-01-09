@@ -16,13 +16,24 @@
 
 
 
-    .needle {
+    /* This is the fixed pivot point (center of the dial) */
+.needle-pivot {
   position: absolute;
-  width: 320px;                 /* tweak this to match your art */
   left: 50%;
-  top: 52%;                      /* tweak: this is the dial's center */
-  transform-origin: 12% 50%;     /* tweak: hinge point inside the needle image */
-  transform: translate(-12%, -50%) rotate(-90deg);
+  top: 72%;                 /* <-- adjust until it sits on the dial center */
+  width: 0;
+  height: 0;
+}
+
+/* The image is positioned so its BASE sits on the pivot */
+.needle {
+  position: absolute;
+  width: 320px;             /* adjust for size */
+  left: 0;
+  top: 0;
+
+  transform-origin: 0% 100%; /* BASE-LEFT of the image */
+  transform: rotate(-90deg); /* starting position */
   transition: transform 0.8s ease;
   pointer-events: none;
 }
@@ -93,7 +104,11 @@ input::placeholder {
 
   <div class="meter-container">
     <img src="meter-bg.png" class="meter-bg" />
-    <img src="needle-croc.png" class="needle" id="needle" />
+
+    <div class="needle-pivot">
+  <img src="needle-croc.png" class="needle" id="needle" />
+   </div> 
+
   </div>
 
 
@@ -127,7 +142,7 @@ input::placeholder {
         label = "Above Goal 🐊🔥";
       }
 
-    needle.style.transform = `translate(-12%, -50%) rotate(${angle}deg)`;
+  needle.style.transform = `rotate(${angle}deg)`;
 
 
       result.textContent = `ER ${er}% — ${label}`;
