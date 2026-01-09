@@ -17,26 +17,33 @@
 
 
     /* This is the fixed pivot point (center of the dial) */
+/* Fixed pivot point (dial center) */
 .needle-pivot {
   position: absolute;
   left: 50%;
-  top: 68%;                 /* <-- adjust until it sits on the dial center */
+  top: 74%;         /* <-- adjust this up/down until the circle sits on dial center */
   width: 0;
   height: 0;
 }
 
-/* The image is positioned so its BASE sits on the pivot */
+/* Needle image rotates around the spiky circle center */
 .needle {
   position: absolute;
-  width: 320px;             /* adjust for size */
+  width: 320px;     /* tweak size */
   left: 0;
   top: 0;
 
-  transform-origin: 0% 100%; /* BASE-LEFT of the image */
-  transform: rotate(-90deg); /* starting position */
+  /* These two are the KEY:
+     Put the spiky-circle center on the pivot point */
+  transform: translate(-50%, -50%) rotate(-90deg);
+
+  /* Set origin to the circle center INSIDE the image */
+  transform-origin: 50% 92%;  /* <-- tweak this to match the circle's center */
+
   transition: transform 0.8s ease;
   pointer-events: none;
 }
+
 
 
 
@@ -142,7 +149,8 @@ input::placeholder {
         label = "Above Goal 🐊🔥";
       }
 
-  needle.style.transform = `rotate(${angle}deg)`;
+  needle.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+
 
 
       result.textContent = `ER ${er}% — ${label}`;
