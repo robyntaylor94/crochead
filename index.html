@@ -22,14 +22,15 @@
     }
 
     .needle {
-      position: absolute;
-      width: 120px;
-      left: 50%;
-      bottom: 20px;
-      transform-origin: left center;
-      transform: rotate(-90deg);
-      transition: transform 0.8s ease;
-    }
+  position: absolute;
+  width: 220px;             /* adjust if needed */
+  left: 50%;
+  top: 65%;                 /* anchor around the dial center area */
+  transform-origin: 12% 50%; /* pivot closer to the left */
+  transform: translate(-50%, -50%) rotate(-90deg);
+  transition: transform 0.8s ease;
+}
+
 
     input {
       padding: 10px;
@@ -52,20 +53,24 @@
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
-  background: transparent;
 }
 
+/* This becomes the "window" the image sits in */
 .meter-container {
   position: relative;
   width: 100%;
-  max-width: none;
+  height: min(52vw, 420px); /* controls how tall it gets */
+  overflow: hidden;         /* crops it cleanly */
 }
 
+/* Make the image fill the window without stretching weirdly */
 .meter-bg {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;        /* fills + crops */
   display: block;
 }
+
 
   </style>
 </head>
@@ -114,7 +119,8 @@
         label = "Above Goal 🐊🔥";
       }
 
-      needle.style.transform = `rotate(${angle}deg)`;
+     needle.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+
       result.textContent = `ER ${er}% — ${label}`;
     }
   </script>
