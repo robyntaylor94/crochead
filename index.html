@@ -123,26 +123,25 @@ input::placeholder {
 body::before {
   content: "";
   position: fixed;
-  inset: -20%; /* oversize so movement doesn't reveal edges */
+  inset: -25%;
 
-  /* denser speckle field */
+  /* White-biased film grain */
   background-image:
-    radial-gradient(circle at 10% 20%, rgba(255,255,255,0.20) 0.7px, transparent 0.8px),
-    radial-gradient(circle at 80% 30%, rgba(255,255,255,0.16) 0.7px, transparent 0.8px),
-    radial-gradient(circle at 40% 70%, rgba(255,255,255,0.14) 0.7px, transparent 0.8px),
-    radial-gradient(circle at 60% 10%, rgba(0,0,0,0.55) 0.9px, transparent 1px),
-    radial-gradient(circle at 20% 80%, rgba(0,0,0,0.45) 0.9px, transparent 1px),
-    radial-gradient(circle at 70% 85%, rgba(255,255,255,0.10) 0.7px, transparent 0.8px),
-    radial-gradient(circle at 35% 40%, rgba(0,0,0,0.35) 0.9px, transparent 1px);
+    radial-gradient(circle at 15% 20%, rgba(255,255,255,0.35) 0.6px, transparent 0.7px),
+    radial-gradient(circle at 70% 30%, rgba(255,255,255,0.30) 0.6px, transparent 0.7px),
+    radial-gradient(circle at 40% 65%, rgba(255,255,255,0.25) 0.6px, transparent 0.7px),
+    radial-gradient(circle at 80% 75%, rgba(255,255,255,0.20) 0.6px, transparent 0.7px),
+    radial-gradient(circle at 25% 85%, rgba(255,255,255,0.22) 0.6px, transparent 0.7px);
 
-  background-size: 80px 80px;   /* much denser grain */
-  opacity: 0.85;                /* stronger */
-  mix-blend-mode: overlay;      /* higher contrast on black */
+  background-size: 70px 70px;     /* dense grain */
+  opacity: 0.55;                  /* visible but not snowy */
+  mix-blend-mode: screen;         /* KEY for black backgrounds */
   pointer-events: none;
   z-index: 0;
 
-  animation: grain 2.2s steps(7) infinite;
+  animation: grain 1.8s steps(6) infinite;
 }
+
 
 body > * {
   position: relative;
