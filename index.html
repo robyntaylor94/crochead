@@ -123,6 +123,35 @@
       transition: transform 0.8s ease;
       pointer-events: none;
     }
+    /* Vibes image button on dial */
+.vibes-btn {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 10; /* above dial + needle */
+}
+
+.vibes-btn img {
+  width: 56px;          /* adjust size here */
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.vibes-btn:hover img {
+  transform: scale(1.05);
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,0.75));
+}
+
+.vibes-btn:active img {
+  transform: scale(0.95);
+}
+
 
     /* ----------------------------
        Result (delayed reveal)
@@ -228,12 +257,16 @@
 
     <input id="erInput" type="number" step="0.1" placeholder="e.g. 6.5" disabled />
     <button id="checkBtn" type="button" disabled>Gauge It</button>
-    <button id="vibesBtn" type="button">VIBES</button>
 
   </div>
 
   <div class="meter-container">
     <img src="meter-bg.png" class="meter-bg" alt="Croc ER meter" />
+
+<button id="vibesBtn" class="vibes-btn" type="button" aria-label="Play vibes">
+  <img src="vibes-icon.png" alt="Vibes" />
+</button>
+
 
     <div class="needle-pivot">
       <img src="needle-croc.png" class="needle" id="needle" alt="Needle" />
