@@ -13,17 +13,8 @@
   color: #fff;
 }
 
-    
 
-    .meter-container {
-      position: relative;
-      width: 300px;
-      margin: 40px auto;
-    }
 
-    .meter-bg {
-      width: 100%;
-    }
 
     .needle {
   position: absolute;
@@ -71,19 +62,16 @@ input::placeholder {
 
 .meter-container {
   position: relative;
-  width: 100%;
-  display: flex;
-  justify-content: center;
+  width: min(1100px, 100%);
+  margin: 0 auto;
 }
 
 .meter-bg {
-  width: min(1200px, 100vw); /* grows but never stretches */
-  max-height: 70vh;          /* keeps it from becoming massive */
-  height: auto;              /* preserves aspect ratio (no stretch) */
+  width: 100%;
+  max-height: 70vh;
+  height: auto;
   display: block;
 }
-
-
 
 
   </style>
