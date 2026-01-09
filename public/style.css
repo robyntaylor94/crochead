@@ -1,0 +1,340 @@
+:root {
+      --bg: #000;
+      --panel: #111;
+      --text: #fff;
+      --border: #444;
+      --lime: #7CFF00;
+    }
+
+    body {
+      margin: 0;
+      padding: 40px 20px;
+      text-align: center;
+      font-family: 'Space Grotesk', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /*About Button Block*/
+    .about-btn {
+  margin-top: 10px;
+  background: transparent;
+  border: none;
+  color: #9cff57;
+  font-size: 13px;
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.about-btn:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+    /* Grain behind content */
+    body > * { position: relative; z-index: 1; }
+
+    /* Inputs */
+    .input-area { margin-bottom: 30px; }
+
+    input, button, select {
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-family: 'Space Grotesk', Arial, sans-serif;
+    }
+
+    select { margin-right: 10px; cursor: pointer; }
+
+    button {
+      cursor: pointer;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    input::placeholder { color: #aaa; }
+
+    input:disabled, button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    /* Meter layout */
+    .meter-container {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+    .meter-wrapper {
+  position: relative; /* THIS is the anchor */
+  display: inline-block;
+}
+
+
+    /* KEY FIX: wrapper shrink-wraps to the dial image box */
+    .dial-wrap {
+      position: relative;
+      display: inline-block; /* makes the wrapper match image size */
+      line-height: 0;        /* prevents tiny gaps */
+    }
+
+    .meter-bg {
+      width: auto;
+      height: auto;
+      max-width: 100%;
+      max-height: 70vh;
+      display: block;
+
+      border: 4px solid var(--lime);
+      border-radius: 12px;
+
+      box-shadow:
+        0 0 12px rgba(124, 255, 0, 0.8),
+        0 0 30px rgba(124, 255, 0, 0.6),
+        0 0 60px rgba(124, 255, 0, 0.35),
+        0 0 90px rgba(124, 255, 0, 0.2);
+    }
+
+    /* Needle pivot + needle */
+    .needle-pivot {
+      position: absolute;
+      left: 50%;
+      top: 65%;
+      width: 0;
+      height: 0;
+      pointer-events: none;
+    }
+
+    .needle {
+      position: absolute;
+      width: 320px;
+      left: 0;
+      top: 0;
+      transform: translate(-50%, -50%) rotate(-90deg);
+      transform-origin: 50% 92%;
+      transition: transform 0.8s ease;
+      pointer-events: none;
+    }
+
+    @keyframes needleHover {
+  0%   { transform: translate(-50%, -50%) rotate(var(--needle-angle)); }
+  50%  { transform: translate(-50%, -48%) rotate(var(--needle-angle)); }
+  100% { transform: translate(-50%, -50%) rotate(var(--needle-angle)); }
+}
+
+.needle.hovering {
+  animation: needleHover 3.2s cubic-bezier(0.4, 0.0, 0.2, 1) infinite;
+}
+
+
+
+    /* Vibes image button (anchored to dial box) */
+   .vibes-btn {
+  position: absolute;
+  top: -18px;     /* pulls it slightly into the green glow */
+  left: -18px;    /* hugs the corner like a sticker */
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 10;
+}
+
+
+    .vibes-btn img {
+      width: 240px;
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,0.55));
+      transition: transform 0.15s ease, filter 0.15s ease;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .vibes-btn:hover img {
+      transform: scale(1.05);
+      filter: drop-shadow(0 6px 12px rgba(0,0,0,0.75));
+    }
+
+    .vibes-btn:active img {
+      transform: scale(0.95);
+    }
+
+    /* Optional: when playing, add a glow */
+    .vibes-btn.playing img {
+      filter:
+        drop-shadow(0 0 10px rgba(124, 255, 0, 0.55))
+        drop-shadow(0 8px 12px rgba(0,0,0,0.6));
+    }
+
+    /* Result */
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: 700;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    #result.show { opacity: 1; }
+
+    .microcopy {
+      margin-top: 6px;
+      font-size: 14px;
+      opacity: 0.75;
+      font-weight: 400;
+    }
+
+    /* Film grain overlay */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: -25%;
+      pointer-events: none;
+      z-index: 0;
+      mix-blend-mode: screen;
+      opacity: 0.55;
+      background-size: 70px 70px;
+      background-image:
+        radial-gradient(circle at 15% 20%, rgba(255,255,255,0.35) 0.6px, transparent 0.7px),
+        radial-gradient(circle at 70% 30%, rgba(255,255,255,0.30) 0.6px, transparent 0.7px),
+        radial-gradient(circle at 40% 65%, rgba(255,255,255,0.25) 0.6px, transparent 0.7px),
+        radial-gradient(circle at 80% 75%, rgba(255,255,255,0.20) 0.6px, transparent 0.7px),
+        radial-gradient(circle at 25% 85%, rgba(255,255,255,0.22) 0.6px, transparent 0.7px);
+      animation: grain 1.8s steps(6) infinite;
+    }
+
+    @keyframes grain {
+      0%, 100% { transform: translate(0, 0); }
+      10% { transform: translate(-1%, -1%); }
+      20% { transform: translate(1%, 1%); }
+      30% { transform: translate(-2%, 1%); }
+      40% { transform: translate(2%, -1%); }
+      50% { transform: translate(-1%, 2%); }
+      60% { transform: translate(1%, -2%); }
+      70% { transform: translate(-2%, -1%); }
+      80% { transform: translate(1%, 1%); }
+      90% { transform: translate(-1%, -2%); }
+    }
+
+    /* Jibbit rain */
+    #jibbitRain {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      overflow: hidden;
+    }
+
+    .jibbit {
+      position: absolute;
+      top: -80px;
+      will-change: transform, opacity;
+      opacity: 0.95;
+      filter: drop-shadow(0 8px 10px rgba(0,0,0,0.45));
+      animation: jibbitFall linear forwards;
+    }
+
+    @keyframes jibbitFall {
+      0%   { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 0; }
+      10%  { opacity: 0.95; }
+      100% { transform: translate3d(var(--drift, 0px), 120vh, 0) rotate(var(--spin, 0deg)); opacity: 0.95; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .jibbit { animation: none; }
+      body::before { animation: none; }
+    }
+
+  .modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+}
+
+.modal {
+  background: #0e0e0e;
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  max-width: 520px;
+  width: calc(100% - 40px);
+  padding: 28px 28px 24px;
+  color: #fff;
+  box-shadow:
+    0 0 20px rgba(124, 255, 0, 0.25),
+    0 0 60px rgba(124, 255, 0, 0.15);
+  position: relative;
+  animation: modalIn 0.2s ease-out;
+}
+
+@keyframes modalIn {
+  from { transform: translateY(10px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+.modal h2 {
+  margin-top: 0;
+  font-size: 22px;
+}
+
+.modal-lead {
+  opacity: 0.9;
+}
+
+.modal p {
+  font-size: 14px;
+  line-height: 1.5;
+  opacity: 0.85;
+}
+
+.modal hr {
+  border: none;
+  border-top: 1px solid #333;
+  margin: 18px 0;
+}
+
+.modal-rules {
+  padding-left: 18px;
+  font-size: 14px;
+}
+
+.modal-rules li {
+  margin-bottom: 10px;
+}
+
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #aaa;
+  cursor: pointer;
+}
+
+.modal-close:hover {
+  color: #fff;
+}
+
+.modal-cta {
+  margin-top: 18px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  background: #7cff00;
+  color: #000;
+  font-weight: 700;
+  cursor: pointer;
+}
+.modal-overlay[hidden] {
+  display: none !important;
+}
