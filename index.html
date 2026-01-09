@@ -86,7 +86,18 @@ input, button {
   padding: 12px 18px;
   border-radius: 12px;   /* ← this rounds them */
   font-size: 16px;
+  
 }
+select {
+  background: #111;
+  color: #fff;
+  border: 1px solid #444;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-size: 16px;
+  margin-right: 10px;
+}
+
 
 input::placeholder {
   color: #aaa;
@@ -199,39 +210,58 @@ body > * {
   <div id="result"></div>
 
   <script>
-    function updateMeter() {
-      const er = parseFloat(document.getElementById("erInput").value);
-      const needle = document.getElementById("needle");
-      const result = document.getElementById("result");
+    function function updateMeter() {
+  const channel = document.getElementById("channelSelect").value;
+  const er = parseFloat(document.getElementById("erInput").value);
+  const needle = document.getElementById("needle");
+  const result = document.getElementById("result");
 
-      if (isNaN(er)) {
-        alert("Please enter a number");
-        return;
-      }
+  if (!channel) {
+    alert("Please select a channel first");
+    return;
+  }
 
-      let angle = -90;
-      let label = "Bad";
+  if (isNaN(er)) {
+    alert("Please enter an ER number");
+    return;
+  }
 
-      if (er < 2) {
-        angle = -90;
-        label = "Not it yet 🥴";
-      } else if (er < 4) {
-        angle = -30;
-        label = "Good 👍";
-      } else if (er < 6) {
-        angle = 30;
-        label = "Killin it🔥";
-      } else {
-        angle = 90;
-        label = "Above Goal 🐊";
-      }
+  // ER thresholds by channel
+  const thresholds = {
+    instagram: [2, 4, 6],
+    tiktok: [4, 7, 10],
+    facebook: [1, 2.5, 4],
+    x: [0.5, 1.5, 3],
+    linkedin: [1, 2, 3.5]
+  };
+
+  const [badMax, goodMax, betterMax] = thresholds[channel];
+
+  let angle = -90;
+  let label = "Bad 🥴";
+
+  if (er < badMax) {
+    angle = -90;
+    label = "Bad 🥴";
+  } else if (er < goodMax) {
+    angle = -30;
+    label = "Good 👍";
+  } else if (er < betterMax) {
+    angle = 30;
+    label = "Better 😎";
+  } else {
+    angle = 90;
+    label = "Above Goal 🐊🔥";
+  }
 
   needle.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
 
+  const channelLabel =
+    document.querySelector(`#channelSelect option[value="${channel}"]`).textContent;
 
+  result.textContent = `${channelLabel} ER ${er}% — ${label}`;
+}
 
-      result.textContent = `ER ${er}% — ${label}`;
-    }
   </script>
 </body>
 </html>
