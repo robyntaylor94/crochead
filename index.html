@@ -48,6 +48,25 @@
       font-size: 18px;
       font-weight: bold;
     }
+    .full-bleed {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  background: transparent;
+}
+
+.meter-container {
+  position: relative;
+  width: 100%;
+  max-width: none;
+}
+
+.meter-bg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
   </style>
 </head>
 
@@ -57,10 +76,13 @@
   <input id="erInput" type="number" step="0.1" placeholder="e.g. 3.5" />
   <button onclick="updateMeter()">Check</button>
 
+  <div class="full-bleed">
   <div class="meter-container">
     <img src="meter-bg.png" class="meter-bg" />
     <img src="needle-croc.png" class="needle" id="needle" />
   </div>
+</div>
+
 
   <div id="result"></div>
 
