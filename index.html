@@ -228,6 +228,8 @@
 
     <input id="erInput" type="number" step="0.1" placeholder="e.g. 6.5" disabled />
     <button id="checkBtn" type="button" disabled>Gauge It</button>
+    <button id="vibesBtn" type="button">VIBES</button>
+
   </div>
 
   <div class="meter-container">
@@ -240,6 +242,9 @@
 
   <div id="result"></div>
   <div id="jibbitRain" aria-hidden="true"></div>
+<audio id="vibesAudio" preload="auto">
+  <source src="vibes.mp3" type="audio/mpeg">
+</audio>
 
   <script>
     const channelSelect = document.getElementById("channelSelect");
@@ -247,6 +252,46 @@
     const checkBtn = document.getElementById("checkBtn");
     const result = document.getElementById("result");
     const needle = document.getElementById("needle");
+const vibesBtn = document.getElementById("vibesBtn");
+const vibesAudio = document.getElementById("vibesAudio");
+
+let vibesTimer = null;
+let isVibing = false;
+
+function stopVibes() {
+  if (vibesTimer) {
+    clearTimeout(vibesTimer);
+    vibesTimer = null;
+  }
+  vibesAudio.pause();
+  vibesAudio.currentTime = 0;
+  isVibing = false;
+  vibesBtn.textContent = "VIBES";
+}
+
+function startVibes() {
+  // Play from the beginning for 20 seconds
+  vibesAudio.currentTime = 0;
+
+  vibesAudio.play().then(() => {
+    isVibing = true;
+    vibesBtn.textContent = "STOP";
+
+    vibesTimer = setTimeout(() => {
+      stopVibes();
+    }, 20000); // 20 seconds
+  }).catch(() => {
+    // If browser blocks playback for any reason, keep UI stable
+    isVibing = false;
+    vibesBtn.textContent = "VIBES";
+    alert("Tap VIBES again to allow audio playback.");
+  });
+}
+
+vibesBtn.addEventListener("click", () => {
+  if (isVibing) stopVibes();
+  else startVibes();
+});
 
     // ER thresholds by channel
     const thresholds = {
