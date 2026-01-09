@@ -188,6 +188,44 @@ body > * {
   80% { transform: translate(1%, 1%); }
   90% { transform: translate(-1%, -2%); }
 }
+/* Jibbit rain container (covers whole screen) */
+#jibbitRain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999; /* above everything */
+  overflow: hidden;
+}
+
+/* Each falling jibbit */
+.jibbit {
+  position: absolute;
+  top: -80px; /* start above the viewport */
+  will-change: transform, opacity;
+  opacity: 0.95;
+  filter: drop-shadow(0 8px 10px rgba(0,0,0,0.45));
+  animation: jibbitFall linear forwards;
+}
+
+/* Falling animation */
+@keyframes jibbitFall {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 0.0;
+  }
+  10% {
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate3d(var(--drift, 0px), 120vh, 0) rotate(var(--spin, 0deg));
+    opacity: 0.95;
+  }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .jibbit { animation: none; }
+}
 
 
 
@@ -225,98 +263,160 @@ body > * {
 
 
   <div id="result"></div>
+  <div id="jibbitRain" aria-hidden="true"></div>
+  <!--script is last object in body-->
+<script>
+    const channelSelect = document.getElementById("channelSelect");
+    const erInput = document.getElementById("erInput");
+    const checkBtn = document.getElementById("checkBtn");
+    const result = document.getElementById("result");
 
-  <script>
- const channelSelect = document.getElementById("channelSelect");
-const erInput = document.getElementById("erInput");
-const checkBtn = document.getElementById("checkBtn");
-const result = document.getElementById("result");
+    // Start disabled (in case HTML didn't load as expected)
+    erInput.disabled = true;
+    checkBtn.disabled = true;
 
-// Start disabled (in case HTML didn't load as expected)
-erInput.disabled = true;
-checkBtn.disabled = true;
+    channelSelect.addEventListener("change", () => {
+      const hasChannel = channelSelect.value !== "";
+      erInput.disabled = !hasChannel;
+      checkBtn.disabled = !hasChannel;
 
-channelSelect.addEventListener("change", () => {
-  const hasChannel = channelSelect.value !== "";
-  erInput.disabled = !hasChannel;
-  checkBtn.disabled = !hasChannel;
+      // Optional: clear previous result when switching channels
+      result.textContent = "";
 
-  // Optional: clear previous result when switching channels
-  result.textContent = "";
+      if (hasChannel) erInput.focus();
+    });
+let jibbitInterval = null;
 
-  if (hasChannel) erInput.focus();
-});
+function startJibbitRain(durationMs = 2200) {
+  const rain = document.getElementById("jibbitRain");
+  if (!rain) return;
 
- function updateMeter() {
-  const channel = document.getElementById("channelSelect").value;
-  const er = parseFloat(document.getElementById("erInput").value);
-  const needle = document.getElementById("needle");
-  const result = document.getElementById("result");
+  // Clear any existing burst
+  stopJibbitRain();
 
-  if (!channel) {
-    alert("Please select a channel first");
-    return;
-  }
+  const start = Date.now();
 
-  if (isNaN(er)) {
-    alert("Please enter an ER number");
-    return;
-  }
+  jibbitInterval = setInterval(() => {
+    // Stop after duration
+    if (Date.now() - start > durationMs) {
+      stopJibbitRain();
+      return;
+    }
 
-  // ER thresholds by channel
-  const thresholds = {
-    instagram: [2, 4, 6],
-    tiktok: [4, 7, 10],
-    facebook: [1, 2.5, 4],
-    x: [0.5, 1.5, 3],
-    linkedin: [1, 2, 3.5]
-  };
+    // Create 2–4 jibbits per tick
+    const count = Math.floor(Math.random() * 3) + 2;
 
-  const [badMax, goodMax, betterMax] = thresholds[channel];
+    for (let i = 0; i < count; i++) {
+      const img = document.createElement("img");
+      img.src = "jibbit.png"; // <-- make sure filename matches your repo
+      img.className = "jibbit";
 
-  let angle = -90;
-  let label = "Bad 🥴";
-  let microCopy = "";
+      // Random size (px)
+      const size = Math.floor(Math.random() * 60) + 28; // 28–88px
+      img.style.width = `${size}px`;
+      img.style.height = "auto";
 
-  if (er < badMax) {
-    angle = -90;
-    label = "Close but no 🥴";
-    microCopy = "Oof. This croc stayed dormant.";
-  } else if (er < goodMax) {
-    angle = -30;
-    label = "Good 👍";
-    microCopy = "A solid splash.";
-  } else if (er < betterMax) {
-    angle = 30;
-    label = "Better🔥";
-    microCopy = "Now we’re really snapping.";
-  } else {
-    angle = 90;
-    label = "Killin It 🐊";
-    microCopy = "Big bite energy.";
-  }
+      // Random x position
+      img.style.left = `${Math.random() * 100}vw`;
 
-  needle.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+      // Random drift + spin via CSS variables
+      const drift = (Math.random() * 120 - 60).toFixed(0); // -60..60px
+      const spin = (Math.random() * 360 - 180).toFixed(0); // -180..180deg
+      img.style.setProperty("--drift", `${drift}px`);
+      img.style.setProperty("--spin", `${spin}deg`);
 
-  const channelLabel =
-    document.querySelector(`#channelSelect option[value="${channel}"]`).textContent;
+      // Random duration so they don’t fall uniformly
+      const fallDuration = (Math.random() * 1.2 + 1.6).toFixed(2); // 1.6–2.8s
+      img.style.animationDuration = `${fallDuration}s`;
 
- // Hide result immediately
-result.classList.remove("show");
+      // Remove after animation completes
+      img.addEventListener("animationend", () => img.remove());
 
-// Delay reveal for dramatic effect
-setTimeout(() => {
-  result.innerHTML = `
-    <div>${channelLabel} ER ${er}% — ${label}</div>
-    <div style="margin-top:6px; font-size:14px; opacity:0.75;">
-      ${microCopy}
-    </div>
-  `;
-  result.classList.add("show");
-}, 500);
-
+      rain.appendChild(img);
+    }
+  }, 180); // frequency of spawns
 }
 
+function stopJibbitRain() {
+  if (jibbitInterval) {
+    clearInterval(jibbitInterval);
+    jibbitInterval = null;
+  }
+  const rain = document.getElementById("jibbitRain");
+  if (rain) rain.innerHTML = "";
+}
+
+    function updateMeter() {
+      const channel = document.getElementById("channelSelect").value;
+      const er = parseFloat(document.getElementById("erInput").value);
+      const needle = document.getElementById("needle");
+      const result = document.getElementById("result");
+
+      if (!channel) {
+        alert("Please select a channel first");
+        return;
+      }
+
+      if (isNaN(er)) {
+        alert("Please enter an ER number");
+        return;
+      }
+
+      // ER thresholds by channel
+      const thresholds = {
+        instagram: [2, 4, 6],
+        tiktok: [4, 7, 10],
+        facebook: [1, 2.5, 4],
+        x: [0.5, 1.5, 3],
+        linkedin: [1, 2, 3.5]
+      };
+
+      const [badMax, goodMax, betterMax] = thresholds[channel];
+
+      let angle = -90;
+      let label = "Bad 🥴";
+      let microCopy = "";
+      stopJibbitRain();
+
+      if (er < badMax) {
+        angle = -90;
+        label = "Close but no 🥴";
+        microCopy = "Oof. This croc stayed dormant.";
+      } else if (er < goodMax) {
+        angle = -30;
+        label = "Good 👍";
+        microCopy = "A solid splash.";
+      } else if (er < betterMax) {
+        angle = 30;
+        label = "Better🔥";
+        microCopy = "Now we’re really snapping.";
+      } else {
+        angle = 90;
+        label = "Killin It 🐊";
+        microCopy = "Big bite energy.";
+        startJibbitRain(2600);
+      }
+
+      needle.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+
+      const channelLabel =
+        document.querySelector(`#channelSelect option[value="${channel}"]`).textContent;
+
+    // Hide result immediately
+    result.classList.remove("show");
+
+    // Delay reveal for dramatic effect
+    setTimeout(() => {
+      result.innerHTML = `
+        <div>${channelLabel} ER ${er}% — ${label}</div>
+        <div style="margin-top:6px; font-size:14px; opacity:0.75;">
+          ${microCopy}
+        </div>
+      `;
+      result.classList.add("show");
+    }, 500);
+
+    }
   </script>
 </body>
 </html>
